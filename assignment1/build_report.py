@@ -1,0 +1,489 @@
+"""Build the final Assignment 1 PDF from verified experiment outputs."""
+
+from pathlib import Path
+import csv
+import math
+import os
+import sys
+
+os.environ.setdefault("MPLBACKEND", "Agg")
+
+import matplotlib.pyplot as plt
+import numpy as np
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import (
+    BaseDocTemplate,
+    Frame,
+    Image,
+    KeepTogether,
+    PageBreak,
+    PageTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+)
+
+
+ROOT = Path(__file__).resolve().parent
+SIM = ROOT / "TeachingCartpole"
+sys.path.insert(0, str(SIM))
+
+from cartpole_control import Controller, wrap_to_pi  # noqa: E402
+from cartpole_envs import CartPole  # noqa: E402
+
+
+OUTPUT = ROOT / "output" / "pdf" / "COMP765_Assignment1.pdf"
+PLOT = ROOT.parent / "tmp" / "pdfs" / "swingup_comparison.png"
+RESULTS = SIM / "results" / "experiment_results.csv"
+
+
+def simulate(offset, hybrid, duration=8.0, dt=0.005):
+    env = CartPole(initial_offset=offset)
+    controller = Controller(hybrid=hybrid)
+    rows = []
+    for step in range(int(duration / dt)):
+        state = env.get_state().copy()
+        force = controller.compute_control(state)
+        state = env.step(force, dt=dt).copy()
+        rows.append(
+            (step * dt, wrap_to_pi(state[3] - math.pi), state[0], force)
+        )
+    return np.asarray(rows)
+
+
+def build_plot():
+    PLOT.parent.mkdir(parents=True, exist_ok=True)
+    pure = simulate(math.pi, False)
+    hybrid = simulate(math.pi, True)
+    fig, axes = plt.subplots(2, 1, figsize=(7.1, 3.4), sharex=True)
+    axes[0].plot(pure[:, 0], pure[:, 1], color="#9a3412", lw=1.2, label="Pure LQR")
+    axes[0].plot(hybrid[:, 0], hybrid[:, 1], color="#075985", lw=1.2, label="Hybrid")
+    axes[0].axhline(0, color="#64748b", lw=0.7)
+    axes[0].set_ylabel("upright error (rad)")
+    axes[0].legend(loc="upper right", frameon=False, ncol=2)
+    axes[1].plot(pure[:, 0], pure[:, 2], color="#9a3412", lw=1.2)
+    axes[1].plot(hybrid[:, 0], hybrid[:, 2], color="#075985", lw=1.2)
+    axes[1].axhline(0, color="#64748b", lw=0.7)
+    axes[1].set_ylabel("cart x (m)")
+    axes[1].set_xlabel("time (s)")
+    for ax in axes:
+        ax.grid(True, color="#dbe3ea", lw=0.6)
+        ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(PLOT, dpi=190, bbox_inches="tight")
+    plt.close(fig)
+
+
+def header_footer(canvas, doc):
+    canvas.saveState()
+    canvas.setStrokeColor(colors.HexColor("#cbd5e1"))
+    canvas.line(0.7 * inch, 0.58 * inch, 7.8 * inch, 0.58 * inch)
+    canvas.setFont("Body", 8)
+    canvas.setFillColor(colors.HexColor("#64748b"))
+    canvas.drawString(0.7 * inch, 0.36 * inch, "COMP 765 - Assignment 1")
+    canvas.drawRightString(7.8 * inch, 0.36 * inch, f"Page {doc.page}")
+    canvas.restoreState()
+
+
+def p(text, style):
+    return Paragraph(text, style)
+
+
+def matrix_table(rows, widths=None):
+    table = Table(rows, colWidths=widths, hAlign="LEFT")
+    table.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (-1, -1), "Courier"),
+                ("FONTSIZE", (0, 0), (-1, -1), 8.2),
+                ("TEXTCOLOR", (0, 0), (-1, -1), colors.HexColor("#0f172a")),
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f1f5f9")),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#dbe3ea")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]
+        )
+    )
+    return table
+
+
+def build_pdf():
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    build_plot()
+
+    font_regular = "/System/Library/Fonts/Supplemental/Times New Roman.ttf"
+    font_bold = "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf"
+    pdfmetrics.registerFont(TTFont("Body", font_regular))
+    pdfmetrics.registerFont(TTFont("BodyBold", font_bold))
+
+    styles = getSampleStyleSheet()
+    styles.add(
+        ParagraphStyle(
+            name="TitleCustom",
+            fontName="BodyBold",
+            fontSize=21,
+            leading=24,
+            textColor=colors.HexColor("#173f73"),
+            alignment=TA_CENTER,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="Subtitle",
+            fontName="Body",
+            fontSize=10.5,
+            leading=14,
+            textColor=colors.HexColor("#475569"),
+            alignment=TA_CENTER,
+            spaceAfter=18,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="H1Custom",
+            fontName="BodyBold",
+            fontSize=16,
+            leading=19,
+            textColor=colors.HexColor("#173f73"),
+            spaceBefore=4,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="H2Custom",
+            fontName="BodyBold",
+            fontSize=11.5,
+            leading=14,
+            textColor=colors.HexColor("#075985"),
+            spaceBefore=7,
+            spaceAfter=4,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="BodyCustom",
+            fontName="Body",
+            fontSize=9.6,
+            leading=12.5,
+            textColor=colors.HexColor("#0f172a"),
+            alignment=4,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="Small",
+            fontName="Body",
+            fontSize=8.1,
+            leading=10.2,
+            textColor=colors.HexColor("#334155"),
+            spaceAfter=4,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="Equation",
+            fontName="Body",
+            fontSize=10.2,
+            leading=13,
+            leftIndent=16,
+            textColor=colors.HexColor("#0f172a"),
+            backColor=colors.HexColor("#f8fafc"),
+            borderColor=colors.HexColor("#cbd5e1"),
+            borderWidth=0.5,
+            borderPadding=6,
+            spaceBefore=3,
+            spaceAfter=6,
+        )
+    )
+
+    doc = BaseDocTemplate(
+        str(OUTPUT),
+        pagesize=letter,
+        leftMargin=0.72 * inch,
+        rightMargin=0.72 * inch,
+        topMargin=0.66 * inch,
+        bottomMargin=0.72 * inch,
+        title="COMP 765 Assignment 1",
+        author="COMP 765 student",
+        subject="World models and cart-pole control",
+    )
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
+    doc.addPageTemplates(PageTemplate(id="all", frames=frame, onPage=header_footer))
+
+    B = styles["BodyCustom"]
+    H1 = styles["H1Custom"]
+    H2 = styles["H2Custom"]
+    EQ = styles["Equation"]
+    S = styles["Small"]
+    story = []
+
+    story += [
+        Spacer(1, 0.08 * inch),
+        p("Assignment 1: Intro to World Models and Control", styles["TitleCustom"]),
+        p("COMP 765 - Fall 2026", styles["Subtitle"]),
+        p("Question 1 - Profile of a World Model: DreamerV3", H1),
+        p(
+            "<b>What goes in and what comes out.</b> DreamerV3 is a model-based reinforcement-learning "
+            "agent rather than a stand-alone video generator. At each environment step it consumes an "
+            "observation (RGB pixels or a low-dimensional state vector), the previous action, reward, and "
+            "episode-continuation flag. An encoder maps the observation to categorical stochastic variables "
+            "<i>z</i><sub>t</sub>; a recurrent sequence model carries deterministic state <i>h</i><sub>t</sub>. "
+            "Together they form the compact model state. From it, learned heads reconstruct the observation "
+            "and predict reward and continuation, while the transition prior predicts the next latent state "
+            "conditioned on actions. The actor outputs discrete or continuous actions and the critic outputs "
+            "a distribution over future return [1].",
+            B,
+        ),
+        p(
+            "<b>Design principles.</b> The central idea is to learn behavior from imagined latent trajectories, "
+            "not by rolling pixels forward for every policy update. Replay observations train a recurrent "
+            "state-space model (RSSM); imagined rollouts of length 16 then train an actor-critic using predicted "
+            "rewards, continuation probabilities, and bootstrapped lambda-returns. This separates representation "
+            "learning from decision learning while retaining a differentiable, action-conditioned simulator. "
+            "Unlike classical system identification, the latent state need not correspond to named physical "
+            "variables. Unlike MuZero-style task-centric models, Dreamer reconstructs sensory inputs, so its "
+            "representation is shaped by general observation structure as well as reward. Unlike online search "
+            "or MPC, the deployed actor selects an action directly without look-ahead search [1].",
+            B,
+        ),
+        p(
+            "<b>What distinguishes V3.</b> DreamerV1 introduced analytic actor gradients through continuous "
+            "latent imagination [2]. DreamerV2 replaced Gaussian stochastic states with multiple categorical "
+            "variables and used straight-through gradients, reaching human-level Atari performance [3]. "
+            "DreamerV3 retains discrete RSSM states but targets one fixed configuration across very different "
+            "domains. Its main robustness devices are: separate stop-gradient KL objectives for dynamics and "
+            "representation learning; one-nat free bits; a 1% uniform mixture that prevents near-deterministic "
+            "categoricals; symlog transforms for wide-range signed targets; two-hot categorical reward/return "
+            "prediction; and percentile-based return normalization. Ablations attribute performance to the "
+            "combination rather than one trick. The authors report fixed-hyperparameter results on more than "
+            "150 tasks spanning Control Suite, Atari, ProcGen, DMLab, Minecraft, and non-visual domains [1].",
+            B,
+        ),
+        p(
+            "<b>Assessment.</b> The strongest contribution is robustness: a single agent design handles image and "
+            "vector observations, sparse and dense rewards, and discrete and continuous actions. Its limitations "
+            "are also important. Imagined behavior inherits model bias; reconstruction spends capacity on details "
+            "that may not matter for control; training remains compute-intensive; and benchmark success does not "
+            "guarantee safe real-world prediction under distribution shift. Public JAX code provides training "
+            "configurations and reproducible benchmark instructions, but no small public-weight inference model "
+            "is the core artifact because Dreamer learns online for each environment [4].",
+            B,
+        ),
+        Spacer(1, 4),
+        p(
+            "Sources for Q1: [1] Hafner et al., <i>Mastering Diverse Domains through World Models</i>, "
+            "https://arxiv.org/abs/2301.04104. [2] Hafner et al., <i>Dream to Control</i>, "
+            "https://arxiv.org/abs/1912.01603. [3] Hafner et al., <i>Mastering Atari with Discrete World "
+            "Models</i>, https://arxiv.org/abs/2010.02193. [4] Official implementation, "
+            "https://github.com/danijar/dreamerv3.",
+            S,
+        ),
+        PageBreak(),
+        p("Question 2 - Model and Control the Cart-Pole", H1),
+        p("A. Linearization about the upright equilibrium", H2),
+        p(
+            "The simulator state is <i>s</i> = [x, x-dot, theta-dot, theta]<super>T</super>. Define the local "
+            "angle phi = theta - pi and deviation state delta = [x, x-dot, theta-dot, phi]<super>T</super>. "
+            "Near theta = pi, sin(theta) is approximately -phi, cos(theta) is approximately -1, "
+            "cos(theta)<super>2</super> is approximately 1, and products such as theta-dot<super>2</super> "
+            "sin(theta) are second order and discarded. Let D = 4(M+m) - 3m.",
+            B,
+        ),
+        p(
+            "x-double-dot = [3m g phi - 4b x-dot + 4u] / D<br/>"
+            "theta-double-dot = [6(M+m)g phi - 6b x-dot + 6u] / (lD)",
+            EQ,
+        ),
+        p(
+            "Therefore delta-dot = A delta + B u, with the state order used by the code:", B
+        ),
+        matrix_table(
+            [
+                ["A =", "[ 0       1       0          0              ]", "B =", "[ 0       ]"],
+                ["", "[ 0    -4b/D      0       3mg/D             ]", "", "[ 4/D     ]"],
+                ["", "[ 0  -6b/(lD)     0   6(M+m)g/(lD)        ]", "", "[ 6/(lD) ]"],
+                ["", "[ 0       0       1          0              ]", "", "[ 0       ]"],
+            ],
+            [0.36 * inch, 3.55 * inch, 0.34 * inch, 1.0 * inch],
+        ),
+        Spacer(1, 6),
+        p(
+            "With M=m=l=0.5, g=9.82, D=2.5. The handout states b=0.1, giving A[2,2]=-0.16 "
+            "and A[3,2]=-0.48. Inspection of the supplied executable CartPole class shows b=1.0, so the "
+            "implemented model uses the following values; all other entries agree:",
+            B,
+        ),
+        matrix_table(
+            [
+                ["A =", "[ 0    1.0    0    0      ]", "B =", "[ 0   ]"],
+                ["", "[ 0   -1.6    0    5.892  ]", "", "[ 1.6 ]"],
+                ["", "[ 0   -4.8    0   47.136  ]", "", "[ 4.8 ]"],
+                ["", "[ 0    0.0    1    0      ]", "", "[ 0   ]"],
+            ],
+            [0.36 * inch, 2.9 * inch, 0.34 * inch, 0.8 * inch],
+        ),
+        p("B. LQR design and stability", H2),
+        p(
+            "I used Q = diag(2, 1, 2, 120) and R = [0.2]. The continuous algebraic Riccati equation "
+            "returns K = [-3.1623, -6.4776, 7.2892, 47.0906]. The code applies u = K(g-s), with the "
+            "angular component wrapped to [-pi, pi). Equivalently, u = -K delta. The closed-loop poles are "
+            "-16.7176, -7.7261, and -0.8903 +/- 0.6012i, so the linear model is asymptotically stable. "
+            "For comparability with swing-up, force is limited to +/-30 N.",
+            B,
+        ),
+        PageBreak(),
+        p("Balancing experiments", H1),
+        p(
+            "Each deterministic run used the nonlinear supplied ODE simulator for 20 s at dt=0.005 s. "
+            "Success means that throughout the final 5 s, |theta-pi|<0.10 rad and |x|<0.50 m. "
+            "The same Q, R, K, and force limit were used for every trial.",
+            B,
+        ),
+    ]
+
+    with RESULTS.open(newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    balance = rows[:4]
+    table_data = [["initial offset", "capture time (s)", "max |u| (N)", "final-window max |angle|", "result"]]
+    names = ["0.01", "0.10", "pi/8", "pi/4"]
+    for name, row in zip(names, balance):
+        table_data.append(
+            [
+                name,
+                f"{float(row['capture_time_s']):.3f}",
+                f"{float(row['max_force_N']):.2f}",
+                f"{float(row['tail_max_angle_error_rad']):.2e}",
+                "PASS" if row["success"] == "True" else "FAIL",
+            ]
+        )
+    results_table = Table(table_data, colWidths=[0.92*inch, 1.12*inch, 0.92*inch, 1.62*inch, 0.62*inch], repeatRows=1)
+    results_table.setStyle(TableStyle([
+        ("FONTNAME", (0,0), (-1,0), "BodyBold"),
+        ("FONTNAME", (0,1), (-1,-1), "Body"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.4),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173f73")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("GRID", (0,0), (-1,-1), 0.35, colors.HexColor("#cbd5e1")),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("TOPPADDING", (0,0), (-1,-1), 5),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+    ]))
+    story += [
+        results_table,
+        Spacer(1, 8),
+        p(
+            "All four requested offsets balance and converge essentially to numerical zero. The pi/4 case "
+            "hits the force limit and takes 1.205 s to meet the capture criterion, whereas smaller errors "
+            "remain unsaturated. Thus the demonstrated reliable balancing range is at least |theta-pi| <= pi/4 "
+            "under the stated 30 N limit. This is an empirical region of attraction, not a global-stability "
+            "claim: the linearization and Riccati proof are local, and saturation makes the nonlinear closed "
+            "loop piecewise smooth.",
+            B,
+        ),
+        p("C. Swing-up from the downward configuration", H2),
+        p(
+            "With initial-offset=pi, the simulator begins at theta=2pi, physically downward. Pure LQR performs "
+            "poorly: the local angle error is maximally ambiguous at +/-pi, the command saturates, and the pole "
+            "does not settle upright during 20 s. Its final-window maximum angle error is 3.1411 rad. Tuning Q "
+            "and R changes local aggressiveness but does not give LQR a global energy-building strategy.",
+            B,
+        ),
+        p(
+            "I therefore explored a hybrid controller. Away from upright it shapes the pole energy<br/>"
+            "E = (m l<super>2</super>/6) theta-dot<super>2</super> + (mgl/2)(1-cos(theta)), "
+            "with target E* = mgl, using u = -k<sub>E</sub>(E*-E) sign(theta-dot cos(theta)) "
+            "- k<sub>x</sub>x - k<sub>v</sub>x-dot, clipped to +/-30 N. I used k<sub>E</sub>=40, "
+            "k<sub>x</sub>=1, and k<sub>v</sub>=2. When |theta-pi|<0.42 rad and |theta-dot|<3.5 rad/s, "
+            "control switches to LQR; 0.65 rad hysteresis prevents chatter.",
+            B,
+        ),
+        Image(str(PLOT), width=6.6 * inch, height=3.14 * inch),
+        p(
+            "Figure 1. Downward-start comparison. Pure LQR remains near the downward equilibrium; energy "
+            "shaping builds motion, enters the capture region, and LQR then recenters the cart.",
+            S,
+        ),
+        PageBreak(),
+        p("Swing-up result and reproducibility", H1),
+        p(
+            "The hybrid controller first meets |theta-pi|<0.10 rad and |theta-dot|<0.25 rad/s at 1.340 s. "
+            "It passes the 20 s success criterion: over the final 5 s, maximum angle error is "
+            f"{float(rows[5]['tail_max_angle_error_rad']):.2e} rad and maximum |x| is "
+            f"{float(rows[5]['tail_max_cart_position_m']):.2e} m. Peak force is 30 N. This is my best "
+            "swing-up result. It is stronger than pure LQR but should be interpreted as a deterministic "
+            "simulation result; actuator delay, sensor noise, and model mismatch were not tested.",
+            B,
+        ),
+        p("Implementation map", H2),
+        p(
+            "<b>lqr_starter.py</b> contains the symbolic-to-numeric matrix construction, Q, R, Riccati solve, "
+            "gain, and pole check. <b>cartpole_control.py</b> implements pure LQR plus the optional hybrid "
+            "swing-up logic. <b>experiment.py</b> reruns all six deterministic trials and writes the CSV used "
+            "for the tables. The original simulator is otherwise unchanged except that its pygame import is "
+            "optional for headless physics tests.",
+            B,
+        ),
+        p("Reproduction", H2),
+        p(
+            "From assignment1/TeachingCartpole:<br/>"
+            "1. python3 -m pip install -r requirements.txt<br/>"
+            "2. python3 lqr_starter.py<br/>"
+            "3. python3 experiment.py<br/>"
+            "4. python3 cartpole_sim.py --initial-offset 3.141592653589793",
+            EQ,
+        ),
+        p("References", H2),
+        p(
+            "[1] D. Hafner, J. Pasukonis, J. Ba, and T. Lillicrap. Mastering Diverse Domains through "
+            "World Models. arXiv:2301.04104, 2023 (rev. 2024). https://arxiv.org/abs/2301.04104",
+            S,
+        ),
+        p(
+            "[2] D. Hafner, T. Lillicrap, J. Ba, and M. Norouzi. Dream to Control: Learning Behaviors by "
+            "Latent Imagination. arXiv:1912.01603, 2019. https://arxiv.org/abs/1912.01603",
+            S,
+        ),
+        p(
+            "[3] D. Hafner, T. Lillicrap, M. Norouzi, and J. Ba. Mastering Atari with Discrete World "
+            "Models. arXiv:2010.02193, 2020. https://arxiv.org/abs/2010.02193",
+            S,
+        ),
+        p(
+            "[4] D. Hafner et al. DreamerV3 official JAX implementation. "
+            "https://github.com/danijar/dreamerv3 (accessed 2026-09-23).",
+            S,
+        ),
+        p(
+            "[5] D. Meger et al. TeachingCartpole simulator. "
+            "https://github.com/dmeger/TeachingCartpole (accessed 2026-09-23).",
+            S,
+        ),
+        Spacer(1, 10),
+        p(
+            "Scope note: the optional DoubleCartpole bonus was not attempted. All claims in Questions 2B and "
+            "2C come from the included executable experiment harness and recorded CSV, not manual observation.",
+            S,
+        ),
+    ]
+
+    doc.build(story)
+    print(OUTPUT)
+
+
+if __name__ == "__main__":
+    build_pdf()
