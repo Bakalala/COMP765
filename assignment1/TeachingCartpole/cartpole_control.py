@@ -19,9 +19,10 @@ class Controller:
     inside the capture region. Set hybrid=False for pure-LQR experiments.
     """
 
-    def __init__(self, hybrid=True, force_limit=30.0):
+    def __init__(self, hybrid=True, force_limit=30.0, double_force_limit=40.0):
         self.hybrid = hybrid
         self.force_limit = float(force_limit)
+        self.double_force_limit = float(double_force_limit)
         self.K = K.copy()
         self.captured = False
 
@@ -35,6 +36,7 @@ class Controller:
         self.capture_angle = 0.42
         self.release_angle = 0.65
         self.capture_rate = 3.5
+        self.double_controller = None
 
     def lqr_control(self, state):
         state = np.asarray(state, dtype=float).reshape(4)
@@ -60,7 +62,14 @@ class Controller:
         return float(pump + centre_cart)
 
     def compute_control(self, state):
-        state = np.asarray(state, dtype=float).reshape(4)
+        state = np.asarray(state, dtype=float).reshape(-1)
+        if state.size == 6:
+            if self.double_controller is None:
+                from double_cartpole_control import DoubleController
+                self.double_controller = DoubleController(force_limit=self.double_force_limit)
+            return self.double_controller.compute_control(state)
+        if state.size != 4:
+            raise ValueError(f"Expected four or six state values, got {state.size}")
         upright_error = abs(wrap_to_pi(state[3] - math.pi))
 
         if not self.hybrid:

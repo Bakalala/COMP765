@@ -36,14 +36,16 @@ SIM = ROOT / "TeachingCartpole"
 sys.path.insert(0, str(SIM))
 
 from cartpole_control import Controller, wrap_to_pi  # noqa: E402
-from cartpole_envs import CartPole  # noqa: E402
+from cartpole_envs import CartPole, DoubleCartPole  # noqa: E402
 
 
 OUTPUT = ROOT / "output" / "pdf" / "COMP765_Assignment1.pdf"
 PLOT = ROOT.parent / "tmp" / "pdfs" / "swingup_comparison.png"
 MODEL_PLOT = ROOT.parent / "tmp" / "pdfs" / "world_model_validation.png"
+DOUBLE_PLOT = ROOT.parent / "tmp" / "pdfs" / "double_cartpole_balance.png"
 RESULTS = SIM / "results" / "experiment_results.csv"
 BONUS = SIM / "results" / "world_model_bonus_summary.csv"
+DOUBLE_RESULTS = SIM / "results" / "double_cartpole_results.csv"
 
 
 def simulate(offset, hybrid, duration=8.0, dt=0.005):
@@ -57,6 +59,21 @@ def simulate(offset, hybrid, duration=8.0, dt=0.005):
         rows.append(
             (step * dt, wrap_to_pi(state[3] - math.pi), state[0], force)
         )
+    return np.asarray(rows)
+
+
+def simulate_double(offset, duration=5.0, dt=0.005):
+    start = [0.0, 0.0, 0.0, 0.0, math.pi, math.pi]
+    env = DoubleCartPole(x_init=start, initial_offset=offset)
+    controller = Controller(hybrid=False)
+    rows = []
+    for step in range(int(duration / dt)):
+        state = env.get_state().copy()
+        force = controller.compute_control(state)
+        state = env.step(force, dt=dt).copy()
+        rows.append((step * dt, state[0],
+                     abs(wrap_to_pi(state[4] - math.pi)),
+                     abs(wrap_to_pi(state[5] - math.pi)), force))
     return np.asarray(rows)
 
 
@@ -100,6 +117,26 @@ def build_plot():
         ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(MODEL_PLOT, dpi=190, bbox_inches="tight")
+    plt.close(fig)
+
+    double = simulate_double(math.pi / 8)
+    fig, axes = plt.subplots(2, 1, figsize=(7.1, 2.75), sharex=True)
+    axes[0].plot(double[:, 0], double[:, 2], color="#075985", lw=1.4,
+                 label="Pole 1")
+    axes[0].plot(double[:, 0], double[:, 3], color="#d97706", lw=1.2,
+                 ls="--", label="Pole 2")
+    axes[0].axhline(0.1, color="#64748b", lw=0.7, ls=":")
+    axes[0].set_ylabel("angle error (rad)")
+    axes[0].legend(loc="upper right", frameon=False, ncol=2, fontsize=8)
+    axes[1].plot(double[:, 0], double[:, 1], color="#0f766e", lw=1.3)
+    axes[1].axhline(0, color="#64748b", lw=0.7)
+    axes[1].set_ylabel("cart x (m)")
+    axes[1].set_xlabel("time (s)")
+    for ax in axes:
+        ax.grid(True, color="#dbe3ea", lw=0.6)
+        ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(DOUBLE_PLOT, dpi=190, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -441,7 +478,7 @@ def build_pdf():
             S,
         ),
         PageBreak(),
-        p("Swing-up result and reproducibility", H1),
+        p("Single-pole swing-up result", H1),
         p(
             "The hybrid controller first meets |theta-pi|<0.10 rad and |theta-dot|<0.25 rad/s at 1.340 s. "
             "It passes the 20 s success criterion: over the final 5 s, maximum angle error is "
@@ -451,7 +488,73 @@ def build_pdf():
             "simulation result; actuator delay, sensor noise, and model mismatch were not tested.",
             B,
         ),
-        p("E. Research bonus - learned world model and lookahead control", H2),
+        p("D. DoubleCartpole bonus", H1),
+        p(
+            "For the six-state system [x, x-dot, theta1-dot, theta2-dot, theta1, theta2], "
+            "let phi1 = theta1 - pi and phi2 = theta2 - pi. At the upright equilibrium, "
+            "the simulator's coupled acceleration equations simplify to H0 a = r, with "
+            "a = [x-double-dot, theta1-double-dot, theta2-double-dot]<super>T</super>:",
+            B,
+        ),
+        p(
+            "H0 = [[3, 0.9, 0.3], [4.5, 2.4, 0.9], [3, 1.8, 1.2]]<br/>"
+            "r = [-0.2 x-dot + 2u, 44.19 phi1, 29.46 phi2]<super>T</super>",
+            EQ,
+        ),
+        p(
+            "Substituting a = H0<super>-1</super>r into the kinematic equations gives "
+            "delta-dot = A delta + Bu. With Q = diag(2, 1, 2, 2, 120, 120), R = [0.2], "
+            "the continuous LQR gain is K = [3.1623, 6.8993, 0.8285, 27.1835, -135.5356, "
+            "189.0925]. All six eigenvalues of A-BK have negative real part. A central-difference "
+            "check against the nonlinear simulator agrees with the derived A and B to about 1e-8.",
+            B,
+        ),
+    ]
+    with DOUBLE_RESULTS.open(newline="") as stream:
+        double_rows = list(csv.DictReader(stream))
+    double_labels = ["default", "0.01", "0.10", "pi/8", "0.42", "pi/4", "pi"]
+    double_table_data = [["start offset", "capture (s)", "tail max angle (rad)",
+                          "peak |x| (m)", "result"]]
+    for label, row in zip(double_labels, double_rows):
+        capture = row["capture_time_s"]
+        double_table_data.append([
+            label,
+            f"{float(capture):.2f}" if capture else "--",
+            f"{max(float(row['tail_max_pole1_error_rad']), float(row['tail_max_pole2_error_rad'])):.3g}",
+            f"{float(row['max_cart_position_m']):.3g}",
+            "PASS" if row["success"] == "True" else "FAIL",
+        ])
+    double_table = Table(double_table_data,
+                         colWidths=[0.85*inch, 0.85*inch, 1.45*inch,
+                                    1.05*inch, 0.65*inch], repeatRows=1)
+    double_table.setStyle(TableStyle([
+        ("FONTNAME", (0,0), (-1,0), "BodyBold"),
+        ("FONTNAME", (0,1), (-1,-1), "Body"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.4),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173f73")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("GRID", (0,0), (-1,-1), 0.35, colors.HexColor("#cbd5e1")),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("TOPPADDING", (0,0), (-1,-1), 4),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
+    ]))
+    story += [
+        double_table,
+        Spacer(1, 5),
+        p(
+            "Both poles balance from the default start through pi/8 with a 40 N cap. "
+            "The pi/8 trial briefly moves the cart 1.23 m, then recenters it; "
+            "0.42 rad, pi/4, and the downward start do not recover. A 30 N cap also failed at "
+            "pi/8. The largest successful tested offset is 0.393 rad, and the next tested offset "
+            "(0.42 rad) fails; no untested initial conditions are claimed.",
+            B,
+        ),
+        Image(str(DOUBLE_PLOT), width=6.25 * inch, height=2.42 * inch),
+        p("Figure 2. Both pole angles and cart position during the pi/8 recovery.", S),
+        PageBreak(),
+        p("E. Research bonus - learned world model", H1),
         p(
             "I collected 7,680 training and 1,920 held-out transitions with randomized initial states "
             "and forces, storing each row in the simulator's (next state, state, force) format. A compact "
@@ -476,18 +579,69 @@ def build_pdf():
             "or swing up from downward.",
             B,
         ),
+        p("Held-out prediction and control", H2),
+    ]
+    error_table = Table([
+        ["state variable", "one-step RMSE", "0.8 s open-loop RMSE"],
+        ["cart position (m)",
+         f"{float(bonus['heldout_one_step_rmse_x']):.2e}",
+         f"{float(bonus['heldout_open_loop_0p8s_rmse_x']):.2e}"],
+        ["pole angle (rad)",
+         f"{float(bonus['heldout_one_step_rmse_theta']):.2e}",
+         f"{float(bonus['heldout_open_loop_0p8s_rmse_theta']):.2e}"],
+    ], colWidths=[1.65*inch, 1.55*inch, 1.75*inch])
+    error_table.setStyle(TableStyle([
+        ("FONTNAME", (0,0), (-1,0), "BodyBold"),
+        ("FONTNAME", (0,1), (-1,-1), "Body"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.4),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173f73")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("GRID", (0,0), (-1,-1), 0.35, colors.HexColor("#cbd5e1")),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("TOPPADDING", (0,0), (-1,-1), 5),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+    ]))
+    control_table = Table([
+        ["start offset", "tail max angle (rad)", "tail max |x| (m)", "peak |u| (N)"],
+        *[
+            [label,
+             f"{float(bonus[f'lookahead_offset_{offset:.6f}_tail_max_angle_error_rad']):.3g}",
+             f"{float(bonus[f'lookahead_offset_{offset:.6f}_tail_max_cart_position_m']):.3g}",
+             f"{float(bonus[f'lookahead_offset_{offset:.6f}_peak_force_N']):.1f}"]
+            for label, offset in (("0.1", 0.1), ("pi/8", math.pi/8),
+                                  ("pi/4", math.pi/4))
+        ],
+    ], colWidths=[1.0*inch, 1.5*inch, 1.25*inch, 1.2*inch])
+    control_table.setStyle(TableStyle([
+        ("FONTNAME", (0,0), (-1,0), "BodyBold"),
+        ("FONTNAME", (0,1), (-1,-1), "Body"),
+        ("FONTSIZE", (0,0), (-1,-1), 8.4),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#173f73")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f8fafc")]),
+        ("GRID", (0,0), (-1,-1), 0.35, colors.HexColor("#cbd5e1")),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("TOPPADDING", (0,0), (-1,-1), 5),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+    ]))
+    story += [
+        error_table,
+        Spacer(1, 7),
+        control_table,
+        Spacer(1, 7),
         Image(str(MODEL_PLOT), width=6.25 * inch, height=2.38 * inch),
         p(
-            "Figure 2. One unseen trajectory: predicted pole rate follows the simulator; lower panel "
+            "Figure 3. One unseen trajectory: predicted pole rate follows the simulator; lower panel "
             "shows accumulated angle prediction error in milliradians.",
             S,
         ),
         p(
             "Reproduce all results from <b>assignment1/TeachingCartpole</b> with "
-            "<b>python3 experiment.py</b> and <b>python3 world_model_bonus.py</b>. "
+            "<b>python3 experiment.py</b>, <b>python3 double_experiment.py</b>, "
+            "and <b>python3 world_model_bonus.py</b>. "
             "The simulator source is D. Meger et al., "
-            "https://github.com/dmeger/TeachingCartpole. The optional DoubleCartpole bonus "
-            "was not attempted.",
+            "https://github.com/dmeger/TeachingCartpole.",
             S,
         ),
     ]
