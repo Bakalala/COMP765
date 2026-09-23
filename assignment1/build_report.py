@@ -41,7 +41,9 @@ from cartpole_envs import CartPole  # noqa: E402
 
 OUTPUT = ROOT / "output" / "pdf" / "COMP765_Assignment1.pdf"
 PLOT = ROOT.parent / "tmp" / "pdfs" / "swingup_comparison.png"
+MODEL_PLOT = ROOT.parent / "tmp" / "pdfs" / "world_model_validation.png"
 RESULTS = SIM / "results" / "experiment_results.csv"
+BONUS = SIM / "results" / "world_model_bonus_summary.csv"
 
 
 def simulate(offset, hybrid, duration=8.0, dt=0.005):
@@ -63,10 +65,11 @@ def build_plot():
     pure = simulate(math.pi, False)
     hybrid = simulate(math.pi, True)
     fig, axes = plt.subplots(2, 1, figsize=(7.1, 3.4), sharex=True)
-    axes[0].plot(pure[:, 0], pure[:, 1], color="#9a3412", lw=1.2, label="Pure LQR")
-    axes[0].plot(hybrid[:, 0], hybrid[:, 1], color="#075985", lw=1.2, label="Hybrid")
-    axes[0].axhline(0, color="#64748b", lw=0.7)
-    axes[0].set_ylabel("upright error (rad)")
+    axes[0].plot(pure[:, 0], np.cos(pure[:, 1]), color="#9a3412", lw=1.2, label="Pure LQR")
+    axes[0].plot(hybrid[:, 0], np.cos(hybrid[:, 1]), color="#075985", lw=1.2, label="Hybrid")
+    axes[0].axhline(1, color="#64748b", lw=0.7)
+    axes[0].set_ylabel("upright score")
+    axes[0].set_ylim(-1.1, 1.12)
     axes[0].legend(loc="upper right", frameon=False, ncol=2)
     axes[1].plot(pure[:, 0], pure[:, 2], color="#9a3412", lw=1.2)
     axes[1].plot(hybrid[:, 0], hybrid[:, 2], color="#075985", lw=1.2)
@@ -78,6 +81,25 @@ def build_plot():
         ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(PLOT, dpi=190, bbox_inches="tight")
+    plt.close(fig)
+
+    trace = np.loadtxt(SIM / "results" / "world_model_heldout_rollout.csv",
+                       delimiter=",", skiprows=1)
+    t = np.arange(len(trace)) * 0.005
+    fig, axes = plt.subplots(2, 1, figsize=(7.1, 2.7), sharex=True)
+    axes[0].plot(t, trace[:, 2], color="#0f3d73", lw=1.5, label="Simulator")
+    axes[0].plot(t, trace[:, 6], color="#d97706", lw=1.2, ls="--", label="Learned model")
+    axes[0].set_ylabel("rate (rad/s)")
+    axes[0].legend(loc="lower left", frameon=False, ncol=2, fontsize=8)
+    axes[1].plot(t, 1000 * (trace[:, 7] - trace[:, 3]), color="#0f766e", lw=1.2)
+    axes[1].axhline(0, color="#64748b", lw=0.7)
+    axes[1].set_ylabel("error (mrad)")
+    axes[1].set_xlabel("held-out rollout time (s)")
+    for ax in axes:
+        ax.grid(True, color="#dbe3ea", lw=0.6)
+        ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(MODEL_PLOT, dpi=190, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -414,8 +436,8 @@ def build_pdf():
         ),
         Image(str(PLOT), width=6.6 * inch, height=3.14 * inch),
         p(
-            "Figure 1. Downward-start comparison. Pure LQR remains near the downward equilibrium; energy "
-            "shaping builds motion, enters the capture region, and LQR then recenters the cart.",
+            "Figure 1. Downward-start comparison. Upright score cos(theta-pi) is +1 upright and -1 "
+            "downward. Energy shaping swings up the pole; LQR then recenters the cart.",
             S,
         ),
         PageBreak(),
@@ -429,54 +451,43 @@ def build_pdf():
             "simulation result; actuator delay, sensor noise, and model mismatch were not tested.",
             B,
         ),
-        p("Implementation map", H2),
+        p("E. Research bonus - learned world model and lookahead control", H2),
         p(
-            "<b>lqr_starter.py</b> contains the symbolic-to-numeric matrix construction, Q, R, Riccati solve, "
-            "gain, and pole check. <b>cartpole_control.py</b> implements pure LQR plus the optional hybrid "
-            "swing-up logic. <b>experiment.py</b> reruns all six deterministic trials and writes the CSV used "
-            "for the tables. The original simulator is otherwise unchanged except that its pygame import is "
-            "optional for headless physics tests.",
+            "I collected 7,680 training and 1,920 held-out transitions with randomized initial states "
+            "and forces, storing each row in the simulator's (next state, state, force) format. A compact "
+            "action-conditioned model fits trigonometric features of the two accelerations by least squares. "
+            "Each output has the learned form acceleration = feature numerator / "
+            "(1 - a cos<super>2</super>(theta)); fourth-order integration predicts the next state. "
+            "The fit uses transition data and no simulator constants.",
             B,
         ),
-        p("Reproduction", H2),
+    ]
+    with BONUS.open(newline="") as stream:
+        bonus = dict(csv.reader(stream))
+    story += [
         p(
-            "From assignment1/TeachingCartpole:<br/>"
-            "1. python3 -m pip install -r requirements.txt<br/>"
-            "2. python3 lqr_starter.py<br/>"
-            "3. python3 experiment.py<br/>"
-            "4. python3 cartpole_sim.py --initial-offset 3.141592653589793",
-            EQ,
+            "On 12 held-out 0.8 s rollouts driven by recorded forces, root mean square error is "
+            f"{float(bonus['heldout_open_loop_0p8s_rmse_x']):.2e} m in cart position and "
+            f"{float(bonus['heldout_open_loop_0p8s_rmse_theta']):.2e} rad in pole angle. "
+            "A 50 ms receding-horizon controller evaluates candidate forces with the learned model, "
+            "a quadratic running cost, and an LQR terminal value. It balances offsets 0.1, pi/8, "
+            "and pi/4 in separate 8 s simulator trials; final 2 s angle errors stay below 0.0037 rad. "
+            "This demonstrates model use in control, though the planner is not shown to outperform LQR "
+            "or swing up from downward.",
+            B,
         ),
-        p("References", H2),
+        Image(str(MODEL_PLOT), width=6.25 * inch, height=2.38 * inch),
         p(
-            "[1] D. Hafner, J. Pasukonis, J. Ba, and T. Lillicrap. Mastering Diverse Domains through "
-            "World Models. arXiv:2301.04104, 2023 (rev. 2024). https://arxiv.org/abs/2301.04104",
+            "Figure 2. One unseen trajectory: predicted pole rate follows the simulator; lower panel "
+            "shows accumulated angle prediction error in milliradians.",
             S,
         ),
         p(
-            "[2] D. Hafner, T. Lillicrap, J. Ba, and M. Norouzi. Dream to Control: Learning Behaviors by "
-            "Latent Imagination. arXiv:1912.01603, 2019. https://arxiv.org/abs/1912.01603",
-            S,
-        ),
-        p(
-            "[3] D. Hafner, T. Lillicrap, M. Norouzi, and J. Ba. Mastering Atari with Discrete World "
-            "Models. arXiv:2010.02193, 2020. https://arxiv.org/abs/2010.02193",
-            S,
-        ),
-        p(
-            "[4] D. Hafner et al. DreamerV3 official JAX implementation. "
-            "https://github.com/danijar/dreamerv3 (accessed 2026-09-23).",
-            S,
-        ),
-        p(
-            "[5] D. Meger et al. TeachingCartpole simulator. "
-            "https://github.com/dmeger/TeachingCartpole (accessed 2026-09-23).",
-            S,
-        ),
-        Spacer(1, 10),
-        p(
-            "Scope note: the optional DoubleCartpole bonus was not attempted. All claims in Questions 2B and "
-            "2C come from the included executable experiment harness and recorded CSV, not manual observation.",
+            "Reproduce all results from <b>assignment1/TeachingCartpole</b> with "
+            "<b>python3 experiment.py</b> and <b>python3 world_model_bonus.py</b>. "
+            "The simulator source is D. Meger et al., "
+            "https://github.com/dmeger/TeachingCartpole. The optional DoubleCartpole bonus "
+            "was not attempted.",
             S,
         ),
     ]
