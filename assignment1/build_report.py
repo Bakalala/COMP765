@@ -408,6 +408,7 @@ def build_pdf():
         p(
             "Each deterministic run used the nonlinear supplied ODE simulator for 20 s at dt=0.005 s. "
             "Success means that throughout the final 5 s, |theta-pi|<0.10 rad and |x|<0.50 m. "
+            "Capture means |theta-pi|<0.10 rad and |theta-dot|<0.25 rad/s. "
             "The same Q, R, K, and force limit were used for every trial.",
             B,
         ),
@@ -415,9 +416,11 @@ def build_pdf():
 
     with RESULTS.open(newline="") as stream:
         rows = list(csv.DictReader(stream))
-    balance = rows[:4]
+    balance = [row for row in rows
+               if row["controller"] == "lqr" and float(row["offset_rad"]) != math.pi]
+    swingup = next(row for row in rows if row["controller"] == "hybrid")
     table_data = [["initial offset", "capture time (s)", "max |u| (N)", "final-window max |angle|", "result"]]
-    names = ["0.01", "0.10", "pi/8", "pi/4"]
+    names = ["default (pi/40)", "0.01", "0.10", "pi/8", "pi/4"]
     for name, row in zip(names, balance):
         table_data.append(
             [
@@ -439,19 +442,18 @@ def build_pdf():
         ("GRID", (0,0), (-1,-1), 0.35, colors.HexColor("#cbd5e1")),
         ("ALIGN", (1,1), (-1,-1), "RIGHT"),
         ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("TOPPADDING", (0,0), (-1,-1), 5),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+        ("TOPPADDING", (0,0), (-1,-1), 4),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 4),
     ]))
     story += [
         results_table,
         Spacer(1, 8),
         p(
-            "All four requested offsets balance and converge essentially to numerical zero. The pi/4 case "
-            "hits the force limit and takes 1.205 s to meet the capture criterion, whereas smaller errors "
-            "remain unsaturated. Thus the demonstrated reliable balancing range is at least |theta-pi| <= pi/4 "
-            "under the stated 30 N limit. This is an empirical region of attraction, not a global-stability "
-            "claim: the linearization and Riccati proof are local, and saturation makes the nonlinear closed "
-            "loop piecewise smooth.",
+            "The default start and all four requested offsets balance. The pi/4 case hits the 30 N force "
+            "limit and takes 1.205 s to meet the capture criterion; smaller tested errors remain unsaturated. "
+            "The largest successful tested offset is pi/4 (0.785 rad), with all other initial state "
+            "deviations zero. These sampled results do not certify a continuous range or global stability: "
+            "the linearization and Riccati proof are local, and saturation alters the nonlinear closed loop.",
             B,
         ),
         p("C. Swing-up from the downward configuration", H2),
@@ -471,7 +473,7 @@ def build_pdf():
             "control switches to LQR; 0.65 rad hysteresis prevents chatter.",
             B,
         ),
-        Image(str(PLOT), width=6.6 * inch, height=3.14 * inch),
+        Image(str(PLOT), width=6.25 * inch, height=2.97 * inch),
         p(
             "Figure 1. Downward-start comparison. Upright score cos(theta-pi) is +1 upright and -1 "
             "downward. Energy shaping swings up the pole; LQR then recenters the cart.",
@@ -482,8 +484,8 @@ def build_pdf():
         p(
             "The hybrid controller first meets |theta-pi|<0.10 rad and |theta-dot|<0.25 rad/s at 1.340 s. "
             "It passes the 20 s success criterion: over the final 5 s, maximum angle error is "
-            f"{float(rows[5]['tail_max_angle_error_rad']):.2e} rad and maximum |x| is "
-            f"{float(rows[5]['tail_max_cart_position_m']):.2e} m. Peak force is 30 N. This is my best "
+            f"{float(swingup['tail_max_angle_error_rad']):.2e} rad and maximum |x| is "
+            f"{float(swingup['tail_max_cart_position_m']):.2e} m. Peak force is 30 N. This is my best "
             "swing-up result. It is stronger than pure LQR but should be interpreted as a deterministic "
             "simulation result; actuator delay, sensor noise, and model mismatch were not tested.",
             B,

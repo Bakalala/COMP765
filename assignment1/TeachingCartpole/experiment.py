@@ -48,7 +48,7 @@ def run_trial(offset, hybrid=False, duration=DURATION):
 
 
 def main():
-    offsets = [0.01, 0.1, math.pi / 8.0, math.pi / 4.0]
+    offsets = [math.pi / 40.0, 0.01, 0.1, math.pi / 8.0, math.pi / 4.0]
     rows = [run_trial(offset, hybrid=False) for offset in offsets]
     rows.append(run_trial(math.pi, hybrid=False))
     rows.append(run_trial(math.pi, hybrid=True))
@@ -56,7 +56,7 @@ def main():
     output = Path(__file__).parent / "results" / "experiment_results.csv"
     output.parent.mkdir(exist_ok=True)
     with output.open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+        writer = csv.DictWriter(stream, fieldnames=rows[0].keys(), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
