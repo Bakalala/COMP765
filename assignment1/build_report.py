@@ -295,9 +295,9 @@ def build_pdf():
         p("COMP 765 - Fall 2026", styles["Subtitle"]),
         p("Question 1 - Profile of a World Model: DreamerV3", H1),
         p(
-            "I chose DreamerV3's recurrent state-space model (RSSM) because it connects prediction with "
-            "control: the agent learns what could happen after an action and uses those predictions "
-            "to improve its policy [1].",
+            "I chose DreamerV3 because I find its ability to learn across very different tasks "
+            "interesting. Its recurrent state-space model (RSSM) learns a compact representation of "
+            "the environment and predicts how it changes in response to actions [1].",
             B,
         ),
         p(
@@ -313,14 +313,14 @@ def build_pdf():
             B,
         ),
         p(
-            "<b>Design principles and differences.</b> The part that makes this useful for control "
-            "is imagination. Dreamer trains its actor and "
+            "<b>Design principles and differences.</b> A central design choice is learning from "
+            "imagined trajectories. Dreamer trains its actor and "
             "critic on short trajectories predicted in latent space, using predicted rewards and "
             "bootstrapped lambda-returns to account for rewards beyond the rollout. This avoids having "
             "to generate full images for every policy update. Once trained, the actor selects actions "
-            "directly, without searching over action sequences at every step. Compared with the "
-            "hand-derived model used for LQR here, Dreamer learns its dynamics and representation from "
-            "experience. Unlike MuZero's task-focused model, it also reconstructs observations [1,2].",
+            "directly, without searching over action sequences at every step. Its dynamics and latent "
+            "representation are learned from interaction data. Unlike MuZero's task-focused model, "
+            "it also reconstructs observations [1,2].",
             B,
         ),
         p(
