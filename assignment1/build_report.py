@@ -295,50 +295,57 @@ def build_pdf():
         p("COMP 765 - Fall 2026", styles["Subtitle"]),
         p("Question 1 - Profile of a World Model: DreamerV3", H1),
         p(
-            "<b>What goes in and what comes out.</b> DreamerV3 is a model-based reinforcement-learning "
-            "agent rather than a stand-alone video generator. At each environment step it consumes an "
-            "observation (RGB pixels or a low-dimensional state vector), the previous action, reward, and "
-            "episode-continuation flag. An encoder maps the observation to categorical stochastic variables "
-            "<i>z</i><sub>t</sub>; a recurrent sequence model carries deterministic state <i>h</i><sub>t</sub>. "
-            "Together they form the compact model state. From it, learned heads reconstruct the observation "
-            "and predict reward and continuation, while the transition prior predicts the next latent state "
-            "conditioned on actions. The actor outputs discrete or continuous actions and the critic outputs "
-            "a distribution over future return [1].",
+            "I chose DreamerV3's recurrent state-space model (RSSM) because it connects prediction with "
+            "control: the agent learns what could happen after an action and uses those predictions "
+            "to improve its policy [1].",
             B,
         ),
         p(
-            "<b>Design principles.</b> The central idea is to learn behavior from imagined latent trajectories, "
-            "not by rolling pixels forward for every policy update. Replay observations train a recurrent "
-            "state-space model (RSSM); imagined rollouts of length 16 then train an actor-critic using predicted "
-            "rewards, continuation probabilities, and bootstrapped lambda-returns. This separates representation "
-            "learning from decision learning while retaining a differentiable, action-conditioned simulator. "
-            "Unlike classical system identification, the latent state need not correspond to named physical "
-            "variables. Unlike MuZero-style task-centric models, Dreamer reconstructs sensory inputs, so its "
-            "representation is shaped by general observation structure as well as reward. Unlike online search "
-            "or MPC, the deployed actor selects an action directly without look-ahead search [1].",
+            "<b>Inputs and outputs.</b> For training, Dreamer uses sequences of observations, actions, "
+            "rewards, and flags indicating "
+            "whether the episode continues. Observations can be RGB images or low-dimensional state "
+            "vectors. The RSSM combines a memory state "
+            "<i>h</i><sub>t</sub> with categorical latent variables <i>z</i><sub>t</sub>. "
+            "The encoder uses the current observation and memory to infer the latent state; the dynamics "
+            "model predicts it without seeing that observation. From the combined state, the model "
+            "reconstructs the observation and predicts reward and continuation. The actor selects a "
+            "discrete or continuous action, while the critic estimates a distribution over future return [1].",
             B,
         ),
         p(
-            "<b>What distinguishes V3.</b> DreamerV1 introduced analytic actor gradients through continuous "
-            "latent imagination [2]. DreamerV2 replaced Gaussian stochastic states with multiple categorical "
-            "variables and used straight-through gradients, reaching human-level Atari performance [3]. "
-            "DreamerV3 retains discrete RSSM states but targets one fixed configuration across very different "
-            "domains. Its main robustness devices are: separate stop-gradient KL objectives for dynamics and "
-            "representation learning; one-nat free bits; a 1% uniform mixture that prevents near-deterministic "
-            "categoricals; symlog transforms for wide-range signed targets; two-hot categorical reward/return "
-            "prediction; and percentile-based return normalization. Ablations attribute performance to the "
-            "combination rather than one trick. The authors report fixed-hyperparameter results on more than "
-            "150 tasks spanning Control Suite, Atari, ProcGen, DMLab, Minecraft, and non-visual domains [1].",
+            "<b>Design principles and differences.</b> The part that makes this useful for control "
+            "is imagination. Dreamer trains its actor and "
+            "critic on short trajectories predicted in latent space, using predicted rewards and "
+            "bootstrapped lambda-returns to account for rewards beyond the rollout. This avoids having "
+            "to generate full images for every policy update. Once trained, the actor selects actions "
+            "directly, without searching over action sequences at every step. Compared with the "
+            "hand-derived model used for LQR here, Dreamer learns its dynamics and representation from "
+            "experience. Unlike MuZero's task-focused model, it also reconstructs observations [1,2].",
             B,
         ),
         p(
-            "<b>Assessment.</b> The strongest contribution is robustness: a single agent design handles image and "
-            "vector observations, sparse and dense rewards, and discrete and continuous actions. Its limitations "
-            "are also important. Imagined behavior inherits model bias; reconstruction spends capacity on details "
-            "that may not matter for control; training remains compute-intensive; and benchmark success does not "
-            "guarantee safe real-world prediction under distribution shift. Public JAX code provides training "
-            "configurations and reproducible benchmark instructions, but no small public-weight inference model "
-            "is the core artifact because Dreamer learns online for each environment [4].",
+            "<b>Theory and key findings.</b> One useful piece of the theory is the KL loss between "
+            "the observation-based latent "
+            "distribution and the model's prediction. Separate stop-gradient losses train the predictor "
+            "to match the encoded state and encourage that state to be predictable. A one-nat free-bits "
+            "threshold stops this penalty from dominating when the distributions already agree well. "
+            "V3 also mixes in 1% uniform probability, uses symlog to compress large signed values, "
+            "predicts rewards and returns with two-hot distributions, and normalizes returns using "
+            "percentiles. Together, these changes make training less sensitive to the task's scale. "
+            "The authors report results on over 150 tasks with fixed hyperparameters, including "
+            "Control Suite, Atari, and Minecraft [1].",
+            B,
+        ),
+        p(
+            "<b>Foundational papers and my assessment.</b> The earlier papers help explain how the "
+            "model developed. DreamerV1 used continuous stochastic states and propagated gradients "
+            "through imagined trajectories to learn behaviour [2]. DreamerV2 switched to categorical "
+            "states with straight-through gradients and reached human-level Atari performance [3]. "
+            "V3 keeps the discrete RSSM but focuses on making one configuration work across domains [1]. "
+            "The public JAX implementation includes training code and configurations [4]. My main "
+            "takeaway is that V3 makes world-model learning more reliable across tasks, but prediction "
+            "errors can still mislead the policy and training needs substantial computation. I would "
+            "want to check how well its predictions hold up in states outside its training experience.",
             B,
         ),
         Spacer(1, 4),
@@ -358,7 +365,7 @@ def build_pdf():
             "angle phi = theta - pi and deviation state delta = [x, x-dot, theta-dot, phi]<super>T</super>. "
             "Near theta = pi, sin(theta) is approximately -phi, cos(theta) is approximately -1, "
             "cos(theta)<super>2</super> is approximately 1, and products such as theta-dot<super>2</super> "
-            "sin(theta) are second order and discarded. Let D = 4(M+m) - 3m.",
+            "sin(theta) are higher order and discarded. Let D = 4(M+m) - 3m.",
             B,
         ),
         p(
@@ -380,8 +387,8 @@ def build_pdf():
         ),
         Spacer(1, 6),
         p(
-            "With M=m=l=0.5, g=9.82, D=2.5. The handout states b=0.1, giving A[2,2]=-0.16 "
-            "and A[3,2]=-0.48. Inspection of the supplied executable CartPole class shows b=1.0, so the "
+            "With M=m=l=0.5, g=9.82, D=2.5. The handout states b=0.1, giving cart and pole "
+            "damping entries of -0.16 and -0.48. The executable CartPole class uses b=1.0, so the "
             "implemented model uses the following values; all other entries agree:",
             B,
         ),
@@ -394,9 +401,11 @@ def build_pdf():
             ],
             [0.36 * inch, 2.9 * inch, 0.34 * inch, 0.8 * inch],
         ),
-        p("B. LQR design and stability", H2),
+        p("B. Balancing: LQR design and stability", H2),
         p(
-            "I used Q = diag(2, 1, 2, 120) and R = [0.2]. The continuous algebraic Riccati equation "
+            "I used Q = diag(2, 1, 2, 120) and R = [0.2]. The largest weight is on angle error "
+            "to prioritize balancing; cart-position and velocity penalties encourage recentering and "
+            "damping, while R penalizes force. The continuous algebraic Riccati equation "
             "returns K = [-3.1623, -6.4776, 7.2892, 47.0906]. The code applies u = K(g-s), with the "
             "angular component wrapped to [-pi, pi). Equivalently, u = -K delta. The closed-loop poles are "
             "-16.7176, -7.7261, and -0.8903 +/- 0.6012i, so the linear model is asymptotically stable. "
@@ -404,7 +413,7 @@ def build_pdf():
             B,
         ),
         PageBreak(),
-        p("Balancing experiments", H1),
+        p("B(i). Balancing and initial-offset tests", H1),
         p(
             "Each deterministic run used the nonlinear supplied ODE simulator for 20 s at dt=0.005 s. "
             "Success means that throughout the final 5 s, |theta-pi|<0.10 rad and |x|<0.50 m. "
@@ -458,14 +467,16 @@ def build_pdf():
         ),
         p("C. Swing-up from the downward configuration", H2),
         p(
-            "With initial-offset=pi, the simulator begins at theta=2pi, physically downward. Pure LQR performs "
+            "<b>Initial performance (i).</b> With initial-offset=pi, the simulator begins at theta=2pi, "
+            "physically downward. Pure LQR performs "
             "poorly: the local angle error is maximally ambiguous at +/-pi, the command saturates, and the pole "
             "does not settle upright during 20 s. Its final-window maximum angle error is 3.1411 rad. Tuning Q "
             "and R changes local aggressiveness but does not give LQR a global energy-building strategy.",
             B,
         ),
         p(
-            "I therefore explored a hybrid controller. Away from upright it shapes the pole energy<br/>"
+            "<b>Changes explored (ii).</b> I therefore explored a hybrid controller. Away from upright "
+            "it shapes the pole energy<br/>"
             "E = (m l<super>2</super>/6) theta-dot<super>2</super> + (mgl/2)(1-cos(theta)), "
             "with target E* = mgl, using u = -k<sub>E</sub>(E*-E) sign(theta-dot cos(theta)) "
             "- k<sub>x</sub>x - k<sub>v</sub>x-dot, clipped to +/-30 N. I used k<sub>E</sub>=40, "
@@ -480,7 +491,7 @@ def build_pdf():
             S,
         ),
         PageBreak(),
-        p("Single-pole swing-up result", H1),
+        p("C(iii). Best single-pole swing-up performance", H1),
         p(
             "The hybrid controller first meets |theta-pi|<0.10 rad and |theta-dot|<0.25 rad/s at 1.340 s. "
             "It passes the 20 s success criterion: over the final 5 s, maximum angle error is "
