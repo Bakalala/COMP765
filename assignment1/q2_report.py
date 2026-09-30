@@ -35,7 +35,7 @@ def _table(headers, rows, widths):
     return table
 
 
-def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
+def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot, range_plot):
     def body(text):
         return Paragraph(text, styles["BodyCustom"])
 
@@ -57,6 +57,19 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
         double = list(csv.DictReader(stream))
     with (sim_dir / "results" / "world_model_bonus_summary.csv").open(newline="") as stream:
         bonus = dict(csv.reader(stream))
+    with (sim_dir / "results" / "stability_sweep.csv").open(newline="") as stream:
+        sweep = list(csv.DictReader(stream))
+    with (sim_dir / "results" / "lqr_tuning.csv").open(newline="") as stream:
+        lqr_tuning = list(csv.DictReader(stream))
+    with (sim_dir / "results" / "swingup_tuning.csv").open(newline="") as stream:
+        swing_tuning = list(csv.DictReader(stream))
+    near_boundary = [row for row in sweep if 1.20 <= float(row["offset_rad"]) <= 1.25]
+    boundary_pass = max(float(row["offset_rad"]) for row in near_boundary
+                        if row["success"] == "True")
+    boundary_fail = min(float(row["offset_rad"]) for row in near_boundary
+                        if row["success"] == "False")
+    quarter_turn = [row for row in lqr_tuning
+                    if math.isclose(float(row["offset_rad"]), math.pi / 4)]
 
     story = [
         heading("Question 2 - Model and Control the Cart-Pole"),
@@ -111,7 +124,8 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
              "Success requires both conditions throughout the final five seconds:"),
         equation(r"|\phi(t)|<0.10\ \mathrm{rad},\qquad|x(t)|<0.50\ \mathrm{m},"
                  r"\qquad 15\leq t\leq20\ \mathrm{s}", number=9),
-        body("Capture time is the first sampled time satisfying both angular conditions:"),
+        body("Capture time is the first time satisfying both angular conditions, including t = 0 "
+             "if the initial state already satisfies them:"),
         equation(r"|\phi|<0.10\ \mathrm{rad},\qquad"
                  r"|\dot{\theta}|<0.25\ \mathrm{rad}\,\mathrm{s}^{-1}", size=10.5),
     ]
@@ -124,17 +138,53 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
                  "PASS" if row["success"] == "True" else "FAIL"]
                 for label, row in zip(labels, balance)], [1.12, 0.91, 1.0, 1.42, 0.62]),
         body("The default start and all four requested offsets balance. The π/4 trial saturates "
-             "at 30 N and takes 1.205 s to meet the capture criterion; smaller tested errors remain "
-             "unsaturated. The largest successful tested offset is π/4 (0.785 rad), with all other "
-             "initial deviations zero. These sampled results do not certify a continuous range or "
-             "global stability; the Riccati proof is local and saturation changes the nonlinear loop."),
+             "at 30 N and takes 1.210 s to meet the capture criterion; smaller requested errors remain "
+             "unsaturated. All other initial deviations are zero. The wider tests below examine how "
+             "far this success extends; the Riccati proof alone applies only to the local linear model."),
+        PageBreak(),
+        heading("B(i), continued - Empirical balancing range"),
+        body("I ran 127 trials: zero error, both signs of offsets from 0.05 to 3.10 rad in 0.05 rad "
+             "steps, and ±π. The controller and success test are unchanged. Every grid point of "
+             "magnitude at most 1.20 rad passes, while ±1.25 rad fail. Twelve additional midpoint "
+             "trials refine these first pass/fail transitions to a bracket narrower than 0.001 rad:"),
+        equation(r"|\phi_0|=" + f"{boundary_pass:.6f}" + r"\ \mathrm{rad}:\ \mathrm{PASS},\qquad"
+                 r"|\phi_0|=" + f"{boundary_fail:.6f}" + r"\ \mathrm{rad}:\ \mathrm{FAIL}", size=10.5),
+        Image(str(range_plot), width=6.25 * inch, height=1.76 * inch),
+        caption("Figure 1. Signed offset sweep for pure LQR. Dotted lines mark the first near-upright "
+                "pass/fail transition; they are not a global stability boundary."),
+        body("Success is not monotonic: seven larger positive offsets and their negative counterparts "
+             "also pass, up to ±2.50 rad. Such recoveries can involve rotations and large cart travel "
+             "(9.69 m at +2.50 rad). Even +1.20 rad reaches 5.76 m before recentering. These are "
+             "recoveries on the simulator's unlimited track, not practical safe operating limits. "
+             "The grid and refinement provide empirical evidence, not a proof between samples or "
+             "for nonzero initial positions and velocities."),
+        subheading("B(ii). Measured Q and R comparison"),
+        body("For each of four designs I repeated the five balancing starts and the downward start "
+             "(24 trials). Only the angle weight and input penalty change; Q's other entries remain "
+             "(2, 1, 2), with the same 30 N cap. All four pass the balancing trials and fail from "
+             "downward. At π/4 the measured trade-offs are:"),
+        _table(["angle weight", "R", "capture (s)", "settle (s)", "peak |x| (m)", "effort (N²s)"],
+               [[f"{float(row['q_angle']):.0f}" + (" (chosen)" if row['profile'] == 'selected' else ""),
+                 f"{float(row['r']):.2f}", f"{float(row['capture_time_s']):.3f}",
+                 f"{float(row['settling_time_s']):.3f}",
+                 f"{float(row['peak_cart_position_m']):.3f}",
+                 f"{float(row['force_squared_integral_N2s']):.2f}"] for row in quarter_turn],
+               [1.0, 0.5, 0.9, 0.9, 1.08, 1.1]),
+        caption("Settling time requires all three limits below to remain satisfied through 20 s. "
+                "Effort is the sampled integral of squared force over the trial."),
+        equation(r"|\phi|<0.10\ \mathrm{rad},\quad|\dot{\theta}|<0.25\ \mathrm{rad}\,\mathrm{s}^{-1},"
+                 r"\quad|x|<0.50\ \mathrm{m};\qquad J_u=\Delta t\sum_k u_k^2", size=10.5),
+        body("Increasing R to 1.0 reduces effort but slows recentering and increases cart travel. "
+             "Reducing R to 0.05 captures slightly sooner but uses more effort. Lowering the angle "
+             "weight to 30 recenters sooner but captures later. I retained (120, 0.2) as a compromise "
+             "between angle capture, travel and input effort, not as a universally optimal setting."),
         PageBreak(),
         heading("C. Swing-up from the downward configuration"),
         subheading("C(i). Initial control performance"),
         body("An initial offset of π starts the pole at an angle of 2π, physically downward. Pure LQR "
              "saturates and fails to settle upright during 20 s; its final-window maximum angular "
-             "error is 3.1411 rad. Changing Q and R can adjust local aggressiveness, but LQR "
-             "does not provide a strategy for building the energy needed to swing up."),
+             "error is 3.1411 rad. All four Q/R designs in B(ii) also fail from this start, so "
+             "retuning local feedback alone did not solve the downward-start problem."),
         subheading("C(ii). Changes explored"),
         body("I used energy shaping away from upright and LQR inside a capture region. For a "
              "uniform rod, the pole's energy relative to downward and its upright target are:"),
@@ -150,17 +200,26 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
         equation(r"\mathrm{capture}:\ |\phi|<0.42\ \mathrm{rad},\quad"
                  r"|\dot{\theta}|<3.5\ \mathrm{rad}\,\mathrm{s}^{-1};"
                  r"\qquad\mathrm{release}:\ |\phi|>0.65\ \mathrm{rad}", size=10.5, number=12),
+        body("I compared three energy gains, keeping every other parameter fixed:"),
+        _table(["gain", "capture (s)", "peak |x| (m)", "effort (N²s)", "result"],
+               [[f"{float(row['energy_gain']):.0f}",
+                 f"{float(row['capture_time_s']):.3f}" if row['capture_time_s'] else "--",
+                 f"{float(row['peak_cart_position_m']):.3f}",
+                 f"{float(row['force_squared_integral_N2s']):.2f}",
+                 "PASS" if row['success'] == 'True' else "FAIL"] for row in swing_tuning],
+               [0.55, 1.05, 1.2, 1.2, 0.65]),
+        body("Gain 20 fails within 20 s. Gain 40 captures sooner, uses less effort and moves the "
+             "cart less than 60, so I kept 40. The failed run still consumes effort without settling."),
         subheading("C(iii). Best swing-up performance"),
-        body("The hybrid controller first meets the angular capture criterion at 1.340 s and passes "
+        body("The hybrid controller first meets the angular capture criterion at 1.345 s and passes "
              "the 20 s success test. Its final-five-second errors and peak force are:"),
         equation(r"\max|\phi|=" + _scientific(swing['tail_max_angle_error_rad']),
                  r"\mathrm{rad},\qquad\max|x|=" + _scientific(swing['tail_max_cart_position_m']),
                  r"\mathrm{m},\qquad\max|u|=30\ \mathrm{N}", size=10.5),
-        Image(str(swing_plot), width=6.25 * inch, height=2.97 * inch),
-        caption("Figure 1. Downward-start comparison. An upright score of +1 means upright and -1 "
-                "means downward. Energy shaping swings up the pole, then LQR recenters the cart."),
-        body("This is my best single-pole swing-up result in deterministic simulation. "
-             "Actuator delay, sensor noise, and model mismatch were not tested."),
+        Image(str(swing_plot), width=6.25 * inch, height=2.30 * inch),
+        caption("Figure 2. Downward-start comparison. An upright score of +1 means upright and -1 "
+                "means downward. Energy shaping swings up the pole, then LQR recenters the cart. "
+                "Simulation only; sensor noise, actuator delay and model mismatch are untested."),
         PageBreak(),
         heading("D. DoubleCartpole bonus"),
         body("Use both pole angles measured from downward. The six-state upright deviation is:"),
@@ -183,7 +242,7 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
              "Trials use the same duration, time step, and final-window success test as part B. "
              "The angular success and capture conditions must hold for both poles."),
         _table(["start offset", "capture (s)", "tail max error (rad)", "peak |x| (m)", "result"],
-               [[label, f"{float(row['capture_time_s']):.2f}" if row['capture_time_s'] else "--",
+               [[label, f"{float(row['capture_time_s']):.3f}" if row['capture_time_s'] else "--",
                  f"{max(float(row['tail_max_pole1_error_rad']), float(row['tail_max_pole2_error_rad'])):.3g}",
                  f"{float(row['max_cart_position_m']):.3g}",
                  "PASS" if row['success'] == "True" else "FAIL"]
@@ -194,7 +253,7 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
              "The largest successful tested offset is 0.393 rad; the next tested offset, 0.42 rad, "
              "fails, as do π/4 and the downward start. No untested initial conditions are claimed."),
         Image(str(double_plot), width=6.25 * inch, height=2.42 * inch),
-        caption("Figure 2. Both pole-angle errors and cart position during the π/8 recovery."),
+        caption("Figure 3. Both pole-angle errors and cart position during the π/8 recovery."),
         PageBreak(),
         heading("E. Research bonus - learned world model"),
         body("I collected 7,680 training and 1,920 held-out transitions using randomized initial "
@@ -230,23 +289,25 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot):
                 for label, offset in [("0.1", 0.1), ("π/8", math.pi / 8), ("π/4", math.pi / 4)]],
                [1.0, 1.5, 1.3, 1.1]),
         Image(str(model_plot), width=6.05 * inch, height=2.30 * inch),
-        caption("Figure 3. One unseen trajectory: predicted pole rate follows the simulator; "
+        caption("Figure 4. One unseen trajectory: predicted pole rate follows the simulator; "
                 "the lower panel shows accumulated angle error in milliradians."),
         body("This demonstrates learned-model use in control; it is not shown to outperform LQR "
              "or to swing up from downward."),
         caption("Reproduce the experiments in assignment1/TeachingCartpole with "
-                "python3 experiment.py, python3 double_experiment.py, and python3 world_model_bonus.py. "
+                "python3 experiment.py, python3 refinement_experiment.py, python3 double_experiment.py, "
+                "and python3 world_model_bonus.py. "
                 "Simulator: D. Meger et al., https://github.com/dmeger/TeachingCartpole."),
     ]
     # Keep the double-pole derivation, table, and trajectory on one page.
     # Equation glyphs retain their size; only the surrounding white space changes.
-    double_section = False
+    compact_section = False
     for flowable in story:
-        if isinstance(flowable, Paragraph) and flowable.getPlainText().startswith("D. DoubleCartpole"):
-            double_section = True
+        if isinstance(flowable, Paragraph) and flowable.getPlainText().startswith(
+                ("C. Swing-up", "D. DoubleCartpole")):
+            compact_section = True
         elif isinstance(flowable, PageBreak):
-            double_section = False
-        if double_section and isinstance(flowable, MathBlock):
+            compact_section = False
+        if compact_section and isinstance(flowable, MathBlock):
             flowable.spaceBefore = 1
             flowable.spaceAfter = 3
     return story

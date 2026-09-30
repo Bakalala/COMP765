@@ -22,16 +22,19 @@ def run_trial(offset, hybrid=False, duration=DURATION):
     env = CartPole(initial_offset=float(offset))
     controller = Controller(hybrid=hybrid)
     samples = []
-    captured_at = None
+    initial = env.get_state()
+    captured_at = (0.0 if abs(wrap_to_pi(initial[3] - math.pi)) < 0.10
+                   and abs(initial[2]) < 0.25 else None)
 
     for step in range(int(duration / DT)):
         state = env.get_state().copy()
         force = controller.compute_control(state)
         next_state = env.step(force, dt=DT).copy()
         angle_error = abs(wrap_to_pi(next_state[3] - math.pi))
-        samples.append((step * DT, *next_state, force, angle_error))
+        sample_time = (step + 1) * DT
+        samples.append((sample_time, *next_state, force, angle_error))
         if captured_at is None and angle_error < 0.10 and abs(next_state[2]) < 0.25:
-            captured_at = step * DT
+            captured_at = sample_time
 
     data = np.asarray(samples)
     tail = data[int(0.75 * len(data)) :]

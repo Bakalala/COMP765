@@ -1,6 +1,7 @@
 """Build the final Assignment 1 PDF from verified experiment outputs."""
 
 from pathlib import Path
+import csv
 import math
 import os
 import sys
@@ -40,6 +41,7 @@ OUTPUT = ROOT / "output" / "pdf" / "COMP765_Assignment1.pdf"
 PLOT = ROOT.parent / "tmp" / "pdfs" / "swingup_comparison.png"
 MODEL_PLOT = ROOT.parent / "tmp" / "pdfs" / "world_model_validation.png"
 DOUBLE_PLOT = ROOT.parent / "tmp" / "pdfs" / "double_cartpole_balance.png"
+RANGE_PLOT = ROOT.parent / "tmp" / "pdfs" / "stability_sweep.png"
 RESULTS = SIM / "results" / "experiment_results.csv"
 BONUS = SIM / "results" / "world_model_bonus_summary.csv"
 DOUBLE_RESULTS = SIM / "results" / "double_cartpole_results.csv"
@@ -54,7 +56,7 @@ def simulate(offset, hybrid, duration=8.0, dt=0.005):
         force = controller.compute_control(state)
         state = env.step(force, dt=dt).copy()
         rows.append(
-            (step * dt, wrap_to_pi(state[3] - math.pi), state[0], force)
+            ((step + 1) * dt, wrap_to_pi(state[3] - math.pi), state[0], force)
         )
     return np.asarray(rows)
 
@@ -68,7 +70,7 @@ def simulate_double(offset, duration=5.0, dt=0.005):
         state = env.get_state().copy()
         force = controller.compute_control(state)
         state = env.step(force, dt=dt).copy()
-        rows.append((step * dt, state[0],
+        rows.append(((step + 1) * dt, state[0],
                      abs(wrap_to_pi(state[4] - math.pi)),
                      abs(wrap_to_pi(state[5] - math.pi)), force))
     return np.asarray(rows)
@@ -78,7 +80,7 @@ def build_plot():
     PLOT.parent.mkdir(parents=True, exist_ok=True)
     pure = simulate(math.pi, False)
     hybrid = simulate(math.pi, True)
-    fig, axes = plt.subplots(2, 1, figsize=(7.1, 3.4), sharex=True)
+    fig, axes = plt.subplots(2, 1, figsize=(7.1, 2.6), sharex=True)
     axes[0].plot(pure[:, 0], np.cos(pure[:, 1]), color="#9a3412", lw=1.2, label="Pure LQR")
     axes[0].plot(hybrid[:, 0], np.cos(hybrid[:, 1]), color="#075985", lw=1.2, label="Hybrid")
     axes[0].axhline(1, color="#64748b", lw=0.7)
@@ -134,6 +136,26 @@ def build_plot():
         ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(DOUBLE_PLOT, dpi=190, bbox_inches="tight")
+    plt.close(fig)
+
+    with (SIM / "results" / "stability_sweep.csv").open(newline="") as stream:
+        scan = [row for row in csv.DictReader(stream) if row["phase"] == "grid"]
+    fig, ax = plt.subplots(figsize=(7.1, 2.0))
+    for passed, color, marker in [(True, "#0f766e", "o"), (False, "#9a3412", "x")]:
+        offsets = [float(row["offset_rad"]) for row in scan
+                   if (row["success"] == "True") == passed]
+        ax.scatter(offsets, [int(passed)] * len(offsets), s=18, c=color,
+                   marker=marker, linewidths=0.8)
+    for sign in [-1, 1]:
+        ax.axvline(sign * 1.209, color="#64748b", ls=":", lw=0.8)
+    ax.set_yticks([0, 1], ["FAIL", "PASS"])
+    ax.set_ylim(-0.3, 1.3)
+    ax.set_xlim(-math.pi - 0.1, math.pi + 0.1)
+    ax.set_xlabel(r"initial upright angle error $\phi_0$ (rad)")
+    ax.grid(axis="x", color="#dbe3ea", lw=0.6)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(RANGE_PLOT, dpi=190, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -275,8 +297,10 @@ def build_pdf():
         p(
             "<b>Design principles and differences.</b> A central design choice is learning from "
             "imagined trajectories. Dreamer trains its actor and "
-            "critic on short trajectories predicted in latent space, using predicted rewards and "
-            "bootstrapped lambda-returns to account for rewards beyond the rollout. This avoids having "
+            "critic on short trajectories predicted in latent space. Lambda-returns mix shorter and "
+            "longer bootstrapped return estimates: a smaller lambda relies more on the critic's value "
+            "prediction, while a larger lambda uses more of the imagined reward sequence. The critic "
+            "also estimates rewards beyond the rollout. This avoids having "
             "to generate full images for every policy update. Once trained, the actor selects actions "
             "directly, without searching over action sequences at every step. Its dynamics and latent "
             "representation are learned from interaction data. Unlike MuZero's task-focused model, "
@@ -286,12 +310,17 @@ def build_pdf():
         p(
             "<b>Theory and key findings.</b> One useful piece of the theory is the KL loss between "
             "the observation-based latent "
-            "distribution and the model's prediction. Separate stop-gradient losses train the predictor "
-            "to match the encoded state and encourage that state to be predictable. A one-nat free-bits "
-            "threshold stops this penalty from dominating when the distributions already agree well. "
+            "distribution and the model's prediction. In the dynamics loss, stop-gradient freezes the "
+            "encoded target so the predictor learns to match it. In the representation loss, the "
+            "predictor is frozen instead, encouraging an informative but predictable encoding. A "
+            "one-nat free-bits threshold switches off KL gradients below that threshold, leaving more "
+            "room to learn useful predictions instead of forcing the latent states to match too closely. "
             "V3 also mixes in 1% uniform probability, uses symlog to compress large signed values, "
-            "predicts rewards and returns with two-hot distributions, and normalizes returns using "
-            "percentiles. Together, these changes make training less sensitive to the task's scale. "
+            "and normalizes returns using percentiles. Rewards and returns use two-hot targets: a "
+            "number is split between its two neighbouring bins, with more weight on the closer bin. "
+            "For example, 0.25 between bins 0 and 1 becomes weights 0.75 and 0.25. Cross-entropy then "
+            "trains the predicted distribution, rather than directly regressing a potentially huge "
+            "scalar. Together, these changes make training less sensitive to the task's scale. "
             "The authors report results on over 150 tasks with fixed hyperparameters, including "
             "Control Suite, Atari, and Minecraft [1].",
             B,
@@ -319,7 +348,7 @@ def build_pdf():
         ),
         PageBreak(),
     ]
-    story += build_q2_story(SIM, styles, PLOT, DOUBLE_PLOT, MODEL_PLOT)
+    story += build_q2_story(SIM, styles, PLOT, DOUBLE_PLOT, MODEL_PLOT, RANGE_PLOT)
 
     doc.build(story)
     print(OUTPUT)

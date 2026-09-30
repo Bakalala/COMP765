@@ -7,6 +7,7 @@ cd TeachingCartpole
 python3 -m pip install -r requirements.txt
 python3 lqr_starter.py
 python3 experiment.py
+python3 refinement_experiment.py
 python3 double_experiment.py
 python3 world_model_bonus.py
 ```
@@ -22,6 +23,16 @@ python3 cartpole_sim.py --env DoubleCartpole --initial-offset 0.1
 
 The experiment harness is headless and saves its summary to
 `TeachingCartpole/results/experiment_results.csv`.
+
+`refinement_experiment.py` adds a signed initial-angle scan (127 grid trials
+and 12 transition-refinement trials), four Q/R comparisons (24 trials), and
+three swing-up energy-gain comparisons. It writes `stability_sweep.csv`,
+`lqr_tuning.csv`, and `swingup_tuning.csv` in the same results folder. The
+near-upright pass/fail bracket is empirical, not a continuous stability proof;
+the scan also records disconnected successful samples and large cart travel.
+The final controller settings are unchanged. Capture times include the initial
+state at zero and otherwise use the actual post-step sample time. The tuning
+tables also report persistent settling time and sampled squared-force effort.
 
 The DoubleCartpole bonus uses its own six-state LQR controller in
 `TeachingCartpole/double_cartpole_control.py`. The GUI selects it automatically

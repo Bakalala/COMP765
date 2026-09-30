@@ -26,18 +26,22 @@ def run_trial(offset, force_limit=40.0, duration=DURATION):
     env = DoubleCartPole(x_init=initial, initial_offset=float(offset))
     controller = Controller(hybrid=False, double_force_limit=force_limit)
     samples = []
-    capture_time = None
+    start = env.get_state()
+    capture_time = (0.0 if max(abs(wrap_to_pi(start[4] - math.pi)),
+                               abs(wrap_to_pi(start[5] - math.pi))) < 0.1
+                    and max(abs(start[2]), abs(start[3])) < 0.25 else None)
     for step in range(int(duration / DT)):
         state = env.get_state().copy()
         force = controller.compute_control(state)
         next_state = env.step(force, DT).copy()
         angle1 = abs(wrap_to_pi(next_state[4] - math.pi))
         angle2 = abs(wrap_to_pi(next_state[5] - math.pi))
-        samples.append((step * DT, next_state[0], next_state[2], next_state[3],
+        sample_time = (step + 1) * DT
+        samples.append((sample_time, next_state[0], next_state[2], next_state[3],
                         angle1, angle2, force))
         if (capture_time is None and max(angle1, angle2) < 0.1
                 and max(abs(next_state[2]), abs(next_state[3])) < 0.25):
-            capture_time = step * DT
+            capture_time = sample_time
 
     data = np.asarray(samples)
     tail = data[-int(5.0 / DT):]
