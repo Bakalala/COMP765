@@ -11,7 +11,7 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
@@ -25,6 +25,8 @@ from reportlab.platypus import (
     PageTemplate,
     Paragraph,
     Spacer,
+    Table,
+    TableStyle,
 )
 
 
@@ -38,6 +40,7 @@ from q2_report import build_q2_story  # noqa: E402
 
 
 OUTPUT = ROOT / "output" / "pdf" / "COMP765_Assignment1.pdf"
+REPOSITORY_URL = "https://github.com/Bakalala/COMP765"
 PLOT = ROOT.parent / "tmp" / "pdfs" / "swingup_comparison.png"
 MODEL_PLOT = ROOT.parent / "tmp" / "pdfs" / "world_model_validation.png"
 DOUBLE_PLOT = ROOT.parent / "tmp" / "pdfs" / "double_cartpole_balance.png"
@@ -193,8 +196,18 @@ def build_pdf():
             fontSize=21,
             leading=24,
             textColor=colors.HexColor("#173f73"),
-            alignment=TA_CENTER,
+            alignment=TA_LEFT,
             spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="RepositoryLink",
+            fontName="Body",
+            fontSize=9.5,
+            leading=13,
+            alignment=TA_RIGHT,
+            textColor=colors.HexColor("#075985"),
         )
     )
     styles.add(
@@ -270,10 +283,24 @@ def build_pdf():
     H1 = styles["H1Custom"]
     S = styles["Small"]
     story = []
+    title_header = Table([[
+        p("Assignment 1<br/><font size='16'>Intro to World Models and Control</font>",
+          styles["TitleCustom"]),
+        p(f'<link href="{REPOSITORY_URL}" color="#075985"><u>GitHub repository</u>'
+          '<br/>Bakalala/COMP765</link>', styles["RepositoryLink"]),
+    ]], colWidths=[doc.width - 112, 112])
+    title_header.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+    title_header.spaceAfter = 8
 
     story += [
         Spacer(1, 0.08 * inch),
-        p("Assignment 1: Intro to World Models and Control", styles["TitleCustom"]),
+        title_header,
         p("COMP 765 - Fall 2026", styles["Subtitle"]),
         p("Question 1 - Profile of a World Model: DreamerV3", H1),
         p(
@@ -348,7 +375,8 @@ def build_pdf():
         ),
         PageBreak(),
     ]
-    story += build_q2_story(SIM, styles, PLOT, DOUBLE_PLOT, MODEL_PLOT, RANGE_PLOT)
+    story += build_q2_story(SIM, styles, PLOT, DOUBLE_PLOT, MODEL_PLOT, RANGE_PLOT,
+                            REPOSITORY_URL)
 
     doc.build(story)
     print(OUTPUT)

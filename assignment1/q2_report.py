@@ -35,7 +35,8 @@ def _table(headers, rows, widths):
     return table
 
 
-def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot, range_plot):
+def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot, range_plot,
+                   repository_url):
     def body(text):
         return Paragraph(text, styles["BodyCustom"])
 
@@ -73,6 +74,10 @@ def build_q2_story(sim_dir, styles, swing_plot, double_plot, model_plot, range_p
 
     story = [
         heading("Question 2 - Model and Control the Cart-Pole"),
+        body('<b>Code and experiment results:</b> '
+             f'<link href="{repository_url}" color="#075985"><u>'
+             f'{repository_url.removeprefix("https://")}</u></link> '
+             '(private; access required).'),
         subheading("A. Linearization about the upright equilibrium"),
         body("Use the simulator's state order and define deviations from the upright equilibrium:"),
         equation(r"\mathbf{s}=[x,\dot{x},\dot{\theta},\theta]^{\mathsf{T}},\qquad"
