@@ -5,8 +5,9 @@
 - `make_figures.py` draws the report figures at printed size into `figures/`.
 - `report.pdf` is generated from that source.
 
-Before submission, complete the two red `[STUDENT TO WRITE ...]` slots: the peer comparison in Section 2.4 and the
-reflection in Section 8. Tables read the result files directly, but numbers in the
+Section 2.4 compares the project with Assignment 1 but names no peer papers, because
+those are not recorded here. Add them if you have them, and read the reflection in
+Section 8 to confirm it matches your view. Tables read the result files directly, but numbers in the
 prose are typed by hand, so recheck them if any experiment is rerun.
 
 Rebuild from this directory with the project requirements installed:

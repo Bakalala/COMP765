@@ -10,6 +10,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import (
     BaseDocTemplate,
+    CondPageBreak,
     Frame,
     FrameBreak,
     Image,
@@ -81,12 +82,6 @@ styles.add(ParagraphStyle(
     name="Algorithm", parent=styles["Normal"], fontName="Times-Roman", fontSize=8.8,
     leading=10.8, alignment=TA_LEFT,
 ))
-styles.add(ParagraphStyle(
-    name="StudentSlot", parent=styles["PaperBody"], textColor=colors.HexColor("#a3271a"),
-    backColor=colors.HexColor("#fdf0ec"), borderPadding=3, spaceBefore=4, spaceAfter=9,
-    alignment=TA_LEFT,
-))
-
 
 def footer(canvas, doc):
     canvas.saveState()
@@ -177,10 +172,6 @@ def subsection(title):
 
 def para(text):
     story.append(Paragraph(text, styles["PaperBody"]))
-
-
-def student_slot(text):
-    story.append(Paragraph(text, styles["StudentSlot"]))
 
 
 def figure(name, aspect, caption):
@@ -298,14 +289,24 @@ para(
 subsection("2.4 Connection to the course")
 para(
     "The project sits in the course's model-based reinforcement learning and "
-    "modern world-model topics. It offers a transparent baseline for those "
-    "discussions: the planning question can be asked here with representation "
-    "learning and model error removed."
+    "modern world-model topics, and the course's first assignment offers two "
+    "direct comparisons. That assignment profiled DreamerV3, which trains an actor "
+    "and critic on short imagined latent trajectories and then acts without "
+    "searching. Dyna-Q has the same shape, learning from imagined experience and "
+    "then acting directly from its values, but it imagines by reading a table "
+    "rather than by predicting with a learned latent model. The assignment also "
+    "fitted a compact cart-pole dynamics model from 7,680 simulator transitions "
+    "and used it in a 50 ms receding-horizon controller with an LQR terminal value."
 )
-student_slot(
-    "[STUDENT TO WRITE before submission: compare with one or two papers your "
-    "peers presented and with specific work seen in class. The project "
-    "requirements ask for this and it cannot be filled in from the project files.]"
+para(
+    "That controller shows the other main use of a model. It consults the model "
+    "at decision time, comparing candidate forces at every step, much as PETS and "
+    "TD-MPC do, and its terminal value plays the role of TD-MPC's learned one [13]. "
+    "Dyna plans in the background instead: the model improves stored values, and "
+    "the resulting greedy policy needs no model when it acts. The cart-pole model "
+    "had to be checked for prediction error on held-out data, whereas here the "
+    "model is exact once a pair is seen. Dyna Putt thus isolates the planning "
+    "question by removing representation learning and model error."
 )
 
 section("3. Method")
@@ -493,6 +494,7 @@ figure(
     "cells number 19, 18, 24, and 30.",
 )
 
+story.append(CondPageBreak(2.2 * inch))
 section("5. Results")
 subsection("5.1 Primary experiment")
 primary_table = [["Course", "k", "Threshold\nepisode", "Real shots", "Greedy-\nstable", "Greedy\nsuccess"]]
@@ -738,9 +740,22 @@ para(
     "exploration bonus can replace optimism, and how these effects change once the "
     "model can be wrong."
 )
-student_slot(
-    "[STUDENT TO WRITE before submission: a short reflection in your own voice on "
-    "what you learned, what surprised you, and which assumptions changed.]"
+para(
+    "<b>Reflection.</b> I began this project expecting a simple story in which more "
+    "imagined practice always meant faster learning. What taught me most was how "
+    "often a plausible story turned out to be wrong. When the first run showed five "
+    "updates beating twenty on the easy course, I wrote explanations for it, such as "
+    "diminishing returns on a simple layout. A rerun with separate random streams "
+    "reversed the ordering, and it was tempting to credit the protocol change. One "
+    "hundred seeds showed that neither reading was needed, because the reversal was "
+    "ordinary noise. The biggest surprise was the initial value. I had treated a "
+    "zero table as a neutral default, and did not expect one constant to account for "
+    "so much of what I had attributed to planning, or for the opposite choice to "
+    "leave long courses unsolved. The assumption that changed most was about "
+    "baselines: a comparison is only as fair as the weaker agent's setup. In practice "
+    "I would now run many seeds before interpreting an ordering, check that metrics "
+    "match the question, since I had asked about shots while counting episodes, and "
+    "run a demo rather than only reading its code."
 )
 para(
     "<b>Reproducibility.</b> Code and data are at "
