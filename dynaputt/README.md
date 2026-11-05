@@ -94,8 +94,8 @@ reproduction of Sutton's experiments or of later methods such as PETS or TD-MPC.
 Status and remaining work are in [LLM_TASKS.md](LLM_TASKS.md). The report, its
 source, the station slides, and the demo plan are in
 [`deliverables/`](deliverables/). The report PDF is a six-page draft with marked
-slots for the author name, a peer comparison, and a personal reflection, which
-must be completed before submission.
+slots for a peer comparison and a personal reflection, which must be completed
+before submission.
 
 ## Implementation notes
 

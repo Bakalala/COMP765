@@ -102,7 +102,7 @@ class PaperDoc(BaseDocTemplate):
         super().__init__(filename, pagesize=letter, leftMargin=MARGIN,
                          rightMargin=MARGIN, topMargin=0.55 * inch,
                          bottomMargin=0.58 * inch, title="Dyna Putt",
-                         author="COMP 765 Project")
+                         author="Ali Seifeldin")
         title_frame = Frame(MARGIN, 7.92 * inch, PAGE_W - 2 * MARGIN,
                             2.48 * inch, leftPadding=0, rightPadding=0,
                             topPadding=0, bottomPadding=0, id="title")
@@ -140,7 +140,7 @@ story.append(Paragraph(
     "Dyna Putt: Does Imagined Practice Help an Agent Learn a Mini-Golf Course?",
     styles["PaperTitle"],
 ))
-story.append(Paragraph("Student Name | COMP 765 -- Fall 2026", styles["PaperAuthor"]))
+story.append(Paragraph("Ali Seifeldin | COMP 765 -- Fall 2026", styles["PaperAuthor"]))
 story.append(Paragraph("Abstract", styles["AbstractHead"]))
 story.append(Paragraph(
     "Dyna reuses a learned model to make extra value updates between real "

@@ -49,18 +49,17 @@ straight into the existing notes.
 
 ## Student actions (do not delegate)
 
-1. Replace `Student Name` in `deliverables/report/build_report.py`.
-2. Write the peer and in-class comparison in the Section 2.4 slot.
-3. Write the personal reflection in the Section 8 slot.
-4. Read the report and confirm you can explain the method, data, and caveats, including
+1. Write the peer and in-class comparison in the Section 2.4 slot.
+2. Write the personal reflection in the Section 8 slot.
+3. Read the report and confirm you can explain the method, data, and caveats, including
    why the later hypotheses are labeled exploratory.
-5. Run `python play.py` on the Mac, using the checklist in `deliverables/demo_plan.md`.
-6. Rebuild the PDF (see `deliverables/report/README.md`) and check it is 6-8 pages with
+4. Run `python play.py` on the Mac, using the checklist in `deliverables/demo_plan.md`.
+5. Rebuild the PDF (see `deliverables/report/README.md`) and check it is 6-8 pages with
    no red slots left. Submit it, and bring the laptop to the session.
 
 ## Optional LLM tasks
 
-Run these one at a time, after the student has finished actions 1-3.
+Run these one at a time, after the student has finished actions 1-2.
 
 ### Task A: independent report review
 
@@ -102,7 +101,7 @@ updates. Add to the report only if the page limit allows.
 
 - Read the relevant files before making claims. Never invent measurements, citations,
   implementation details, or student reflections.
-- Do not fill in the author name, peer comparison, or reflection.
+- Do not fill in the peer comparison or reflection.
 - Do not claim the demo passed the Mac check until the student says so.
 - Do not rewrite `results/episode_results.csv` or the archive.
 - Keep the project scale: an inspectable tabular adaptation, not a neural world model.
