@@ -10,3 +10,9 @@ results, DoubleCartpole and learned world-model bonus experiments, and the
 assignment report.
 
 See [assignment1/README.md](assignment1/README.md) for reproduction commands.
+
+## Course project
+
+`dynaputt/` contains the COMP 765 course project: a small mini-golf environment,
+tabular Q-learning and Dyna-Q agents, experiments, a browser demo, and the report.
+See [dynaputt/README.md](dynaputt/README.md) for setup, run commands, and findings.

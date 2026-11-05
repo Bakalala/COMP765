@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dyna Putt</title>
+  <style>
+    :root { color-scheme: dark; --bg:#151a22; --panel:#202733; --line:#354150; --text:#eef2f6; --muted:#aeb9c7; --green:#4c915c; --yellow:#ffdf68; --orange:#ef9742; --blue:#75b9ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(ellipse at top,#26313d,var(--bg) 62%); color:var(--text); font:16px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; display:grid; place-items:center; padding:24px; }
+    main { width:min(100%,1000px); display:grid; gap:16px; }
+    header { display:flex; align-items:end; justify-content:space-between; gap:20px; }
+    h1 { margin:0; font-size:clamp(28px,5vw,42px); letter-spacing:-.04em; }
+    header p { color:var(--muted); margin:4px 0 0; }
+    .badge { border:1px solid #46634d; color:#b8e6be; background:#203329; border-radius:999px; padding:7px 12px; font-size:13px; white-space:nowrap; }
+    .game { background:rgba(32,39,51,.9); border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 18px 60px #0005; }
+    .topbar { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); }
+    .stats { display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+    .stat strong { font-size:20px; display:block; }
+    .stat span { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    select, button { color:var(--text); background:#2b3543; border:1px solid #465466; border-radius:9px; padding:9px 12px; font:inherit; }
+    button { cursor:pointer; transition:transform .08s ease,background .12s ease; }
+    button:hover { background:#374456; }
+    button:active { transform:translateY(1px); }
+    button.primary { background:#3a6748; border-color:#568c64; font-weight:650; }
+    button.primary:hover { background:#477c57; }
+    button.ai { background:#2f5273; border-color:#4b7eaa; font-weight:650; }
+    button.ai:hover { background:#3a638a; }
+    .board-wrap { padding:18px; background:#181e27; }
+    canvas { display:block; width:100%; height:auto; border-radius:10px; background:#202733; }
+    .controls { padding:16px 18px 18px; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center; }
+    .left-controls { display:grid; gap:12px; }
+    .row { display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+    .label { color:var(--muted); font-size:13px; min-width:64px; }
+    .directions { display:grid; grid-template-columns:repeat(8,minmax(38px,48px)); gap:6px; }
+    .direction { padding:7px 4px; font-size:13px; }
+    .direction.selected { background:#745d23; border-color:#c6a641; color:#fff4bf; }
+    .power { padding:7px 12px; }
+    .power.selected { background:#745d23; border-color:#c6a641; }
+    .buttons { display:flex; flex-direction:column; gap:8px; min-width:145px; }
+    .message { min-height:48px; color:#d7e0ea; font-size:14px; padding:10px 12px; border-top:1px solid var(--line); background:#1d242e; }
+    .note { color:var(--muted); font-size:13px; text-align:center; }
+    .error { color:#ffc1b8; }
+    @media (max-width:680px) { body { padding:12px; } header { align-items:start; flex-direction:column; } .controls { grid-template-columns:1fr; } .buttons { flex-direction:row; } .directions { grid-template-columns:repeat(4,48px); } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>⛳ Dyna Putt</h1><p>A tiny golf course with a learned world model.</p></div>
+    <div class="badge">Tabular Dyna-Q · 20 planning updates per shot</div>
+  </header>
+  <section class="game" aria-label="Mini-golf game">
+    <div class="topbar">
+      <div class="stats">
+        <div class="stat"><strong id="stroke-count">0 / 20</strong><span>Strokes</span></div>
+        <div class="stat"><strong id="course-name">—</strong><span>Course</span></div>
+      </div>
+      <label>Course <select id="course"></select></label>
+    </div>
+    <div class="board-wrap"><canvas id="board" width="880" height="640" aria-label="Mini-golf course"></canvas></div>
+    <div class="controls">
+      <div class="left-controls">
+        <div class="row"><span class="label">Aim</span><div class="directions" id="directions"></div></div>
+        <div class="row"><span class="label">Power</span>
+          <button class="power" data-power="0">Low · 2 tiles</button>
+          <button class="power selected" data-power="1">High · 4 tiles</button>
+        </div>
+      </div>
+      <div class="buttons">
+        <button class="primary" id="shoot">Take shot</button>
+        <button class="ai" id="ai-shot">Let Dyna-Q shoot</button>
+        <button id="reset">Reset course</button>
+      </div>
+    </div>
+    <div class="message" id="message">Connecting to the local Dyna-Q agent…</div>
+  </section>
+  <div class="note">The agent learns a course from simulated shots, then updates its model when you or it takes a shot.</div>
+</main>
+<script>
+(() => {
+  const COURSES = {
+    easy: [
+      "###########", "#.........#", "#S........#", "#.........#",
+      "#.........#", "#.........#", "#........H#", "###########"
+    ],
+    wall_gate: [
+      "###########", "#.........#", "#....#....#", "#....#....#",
+      "#S...#....#", "#..B.#....#", "#....#....#", "#....#...H#", "###########"
+    ]
+  };
+  const labels = ["E", "SE", "S", "SW", "W", "NW", "N", "NE"];
+  const vectors = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+  const powerSteps = [2,4];
+  const directionsRoot = document.getElementById("directions");
+  const courseSelect = document.getElementById("course");
+  const canvas = document.getElementById("board");
+  const ctx = canvas.getContext("2d");
+  const messageEl = document.getElementById("message");
+  let game = null;
+  let direction = 0;
+  let power = 1;
+  let animating = false;
+  let shownBall = null;
+
+  labels.forEach((name, i) => {
+    const button = document.createElement("button");
+    button.className = "direction" + (i === direction ? " selected" : "");
+    button.textContent = `${i + 1} ${name}`;
+    button.addEventListener("click", () => setDirection(i));
+    directionsRoot.append(button);
+  });
+  document.querySelectorAll(".power").forEach(button => button.addEventListener("click", () => {
+    power = Number(button.dataset.power);
+    document.querySelectorAll(".power").forEach(b => b.classList.toggle("selected", b === button));
+  }));
+
+  function setDirection(index) {
+    direction = index;
+    [...directionsRoot.children].forEach((button, i) => button.classList.toggle("selected", i === index));
+  }
+
+  function seededRandom(seed) {
+    let value = seed >>> 0;
+    return () => {
+      value += 0x6D2B79F5;
+      let t = value;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  class MiniGolf {
+    constructor(name) {
+      this.name=name; this.rows=COURSES[name]; this.height=this.rows.length; this.width=this.rows[0].length;
+      this.start=this.find("S"); this.hole=this.find("H"); this.cells=[]; this.cellToState=new Map();
+      for(let y=0;y<this.height;y++) for(let x=0;x<this.width;x++) if(!"#B".includes(this.rows[y][x])) {
+        this.cellToState.set(`${x},${y}`,this.cells.length); this.cells.push([x,y]);
+      }
+      this.nStates=this.cells.length; this.nActions=16; this.reset();
+    }
+    find(char) {
+      const matches=[];
+      this.rows.forEach((row,y)=>[...row].forEach((tile,x)=>{if(tile===char)matches.push([x,y]);}));
+      if(matches.length!==1)throw new Error(`Course needs exactly one ${char}.`);
+      return matches[0];
+    }
+    tile(x,y) { return x<0||x>=this.width||y<0||y>=this.height ? "#" : this.rows[y][x]; }
+    reset() { this.state=this.cellToState.get(this.start.join(","));this.strokes=0;this.done=false;this.truncated=false;return this.state; }
+    step(action) {
+      if(this.done||this.truncated)throw new Error("Episode over; reset the course first.");
+      let directionId=Math.floor(action/2), powerId=action%2;
+      let [dx,dy]=vectors[directionId],ticks=powerSteps[powerId];
+      let [x,y]=this.cells[this.state],path=[[x,y]];
+      for(let i=0;i<ticks;i++) {
+        let nx=x+dx,ny=y+dy,tile=this.tile(nx,ny);
+        if(tile==="B") {
+          dx=-dx;dy=-dy;nx=x+dx;ny=y+dy;
+          if("#B".includes(this.tile(nx,ny)))break;
+        } else if(tile==="#") {
+          const xBlocked=dx!==0&&this.tile(x+dx,y)==="#";
+          const yBlocked=dy!==0&&this.tile(x,y+dy)==="#";
+          if(xBlocked&&!yBlocked)dx=-dx;
+          else if(yBlocked&&!xBlocked)dy=-dy;
+          else {dx=-dx;dy=-dy;}
+          nx=x+dx;ny=y+dy;
+          if("#B".includes(this.tile(nx,ny)))break;
+        }
+        x=nx;y=ny;path.push([x,y]);
+        if(x===this.hole[0]&&y===this.hole[1])break;
+      }
+      this.state=this.cellToState.get(`${x},${y}`);this.strokes++;
+      const sank=x===this.hole[0]&&y===this.hole[1];
+      this.done=sank;this.truncated=!sank&&this.strokes>=20;
+      return {state:this.state,reward:-1,done:this.done||this.truncated,sank,truncated:this.truncated,path};
+    }
+    actionName(action) {return `${labels[Math.floor(action/2)]} / ${action%2?"high":"low"}`;}
+  }
+
+  class DynaQ {
+    constructor(nStates,nActions,seed) {
+      this.nActions=nActions;this.alpha=.25;this.gamma=.95;this.epsilon=1;this.epsilonMin=.03;this.epsilonDecay=.992;
+      this.planningSteps=20;this.rng=seededRandom(seed);this.q=Array.from({length:nStates},()=>new Float64Array(nActions));this.model=new Map();
+    }
+    act(state,explore=true) {
+      if(explore&&this.rng()<this.epsilon)return Math.floor(this.rng()*this.nActions);
+      const row=this.q[state],max=Math.max(...row),best=[];
+      for(let a=0;a<this.nActions;a++)if(row[a]===max)best.push(a);
+      return explore?best[Math.floor(this.rng()*best.length)]:best[0];
+    }
+    update(state,action,reward,next,terminal) {
+      const target=terminal?reward:reward+this.gamma*Math.max(...this.q[next]);
+      this.q[state][action]+=this.alpha*(target-this.q[state][action]);
+    }
+    observe(state,action,reward,next,terminal) {
+      this.update(state,action,reward,next,terminal);this.model.set(`${state},${action}`,[state,action,reward,next,terminal]);
+      const pairs=[...this.model.values()];
+      for(let i=0;i<this.planningSteps;i++) {
+        const [s,a,r,n,t]=pairs[Math.floor(this.rng()*pairs.length)];this.update(s,a,r,n,t);
+      }
+    }
+    endEpisode(){this.epsilon=Math.max(this.epsilonMin,this.epsilon*this.epsilonDecay);}
+  }
+
+  function train(courseName) {
+    const env=new MiniGolf(courseName),agent=new DynaQ(env.nStates,env.nActions,7);
+    for(let episode=0;episode<700;episode++) {
+      let state=env.reset(),done=false;
+      while(!done) {
+        const action=agent.act(state),result=env.step(action);
+        agent.observe(state,action,result.reward,result.state,result.sank);state=result.state;done=result.done;
+      }
+      agent.endEpisode();
+    }
+    agent.epsilon=0;
+    return {env,agent};
+  }
+
+  function setGame(courseName, message) {
+    const trained=train(courseName);trained.env.reset();game={...trained,path:[[...trained.env.start]],message};shownBall=[...trained.env.start];
+    document.getElementById("course-name").textContent=courseName.replaceAll("_"," ");
+    courseSelect.value=courseName;messageEl.textContent=message;
+    updateStats();draw();
+  }
+
+  function updateStats() {
+    if(!game)return;
+    document.getElementById("stroke-count").textContent=`${game.env.strokes} / 20`;
+    document.getElementById("course-name").textContent=game.env.name.replaceAll("_"," ");
+    messageEl.textContent=game.message;messageEl.classList.remove("error");
+  }
+
+  function draw() {
+    if (!game) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.clientWidth;
+    const height = width * game.env.height / game.env.width;
+    canvas.style.height = `${height}px`;
+    if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+    }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const cw = width / game.env.width, ch = height / game.env.height;
+    ctx.clearRect(0,0,width,height);
+    for (let y=0;y<game.env.height;y++) for (let x=0;x<game.env.width;x++) {
+      const tile=game.env.rows[y][x], px=x*cw, py=y*ch;
+      if (tile==="#") {
+        ctx.fillStyle="#454e5c"; ctx.fillRect(px,py,cw,ch);
+        ctx.fillStyle="#505a69"; ctx.fillRect(px+3,py+3,cw-6,ch-6);
+      } else {
+        ctx.fillStyle=(x+y)%2 ? "#4d8c5a" : "#559b63"; ctx.fillRect(px,py,cw,ch);
+        ctx.strokeStyle="#75ad7e"; ctx.lineWidth=1; ctx.strokeRect(px+.5,py+.5,cw-1,ch-1);
+        if(tile==="B") { ctx.fillStyle="#ef9742"; ctx.beginPath(); ctx.arc(px+cw/2,py+ch/2,Math.min(cw,ch)*.24,0,Math.PI*2); ctx.fill(); ctx.strokeStyle="#ffd39f";ctx.lineWidth=2;ctx.stroke(); }
+        if(tile==="H") { ctx.fillStyle="#17231a";ctx.beginPath();ctx.arc(px+cw/2,py+ch/2,Math.min(cw,ch)*.16,0,Math.PI*2);ctx.fill();ctx.fillStyle="#d8e3d3";ctx.beginPath();ctx.arc(px+cw/2,py+ch/2,Math.min(cw,ch)*.06,0,Math.PI*2);ctx.fill(); }
+        if(tile==="S") { ctx.fillStyle="#bdebc0";ctx.font=`${Math.min(cw,ch)*.28}px system-ui`;ctx.textAlign="center";ctx.fillText("START",px+cw/2,py+ch*.24); }
+      }
+    }
+    if (game.path && game.path.length>1) {
+      ctx.beginPath(); game.path.forEach(([x,y],i)=>{const px=(x+.5)*cw,py=(y+.5)*ch;i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+      ctx.strokeStyle="#ffdf68";ctx.lineWidth=Math.max(3,Math.min(cw,ch)*.07);ctx.lineCap="round";ctx.lineJoin="round";ctx.stroke();
+    }
+    const [bx,by]=shownBall || game.env.cells[game.env.state];
+    ctx.fillStyle="#f4f3e8";ctx.beginPath();ctx.arc((bx+.5)*cw,(by+.5)*ch,Math.min(cw,ch)*.12,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#34443a";ctx.lineWidth=2;ctx.stroke();
+  }
+
+  async function animate(path) {
+    animating=true;
+    for (const cell of path.slice(1)) {
+      shownBall=[...cell]; draw();
+      await new Promise(resolve=>setTimeout(resolve,115));
+    }
+    animating=false;
+    if (game) { shownBall=[...game.env.cells[game.env.state]]; draw(); }
+  }
+
+  async function takeShot(actor, action) {
+    if (!game || animating) return;
+    if (game.env.done || game.env.truncated) { game.message="Round over. Press Reset course to play again."; updateStats(); return; }
+    if(actor==="ai")action=game.agent.act(game.env.state,false);
+    const state=game.env.state;
+    const learned=game.agent.model.get(`${state},${action}`);
+    const prediction=learned?game.env.cells[learned[3]]:null;
+    const result=game.env.step(action);
+    game.agent.observe(state,action,result.reward,result.state,result.sank);
+    game.path=result.path;
+    const outcome=result.sank?"sank it!":result.truncated?"out of strokes":"shot taken";
+    const predicted=actor==="ai"&&prediction?` Model predicted ${prediction}; landed at ${game.env.cells[result.state]}.`:"";
+    game.message=`${actor==="ai"?"Dyna-Q":"You"}: ${game.env.actionName(action)} — ${outcome}.${predicted} Model updated.`;
+    updateStats();draw();await animate(result.path);
+  }
+
+  Object.keys(COURSES).forEach(name=>{const option=document.createElement("option");option.value=name;option.textContent=name.replaceAll("_"," ");courseSelect.append(option);});
+  document.getElementById("shoot").addEventListener("click",()=>takeShot("human",direction*2+power));
+  document.getElementById("ai-shot").addEventListener("click",()=>takeShot("ai"));
+  document.getElementById("reset").addEventListener("click",()=>{game.env.reset();game.path=[[...game.env.start]];shownBall=[...game.env.start];game.message="Course reset. The learned agent is ready.";updateStats();draw();});
+  courseSelect.addEventListener("change",()=>{messageEl.textContent="Training a small local Dyna-Q agent for this course…";setTimeout(()=>setGame(courseSelect.value,"Course ready. Try a shot or ask Dyna-Q."),25);});
+  document.addEventListener("keydown",event=>{
+    if(event.key>="1"&&event.key<="8")setDirection(Number(event.key)-1);
+    if(event.key.toLowerCase()==="p"){power=1-power;document.querySelectorAll(".power").forEach(b=>b.classList.toggle("selected",Number(b.dataset.power)===power));}
+    if(event.key===" "){event.preventDefault();takeShot("human",direction*2+power);}
+  });
+  window.addEventListener("resize",draw);
+  messageEl.textContent="Training a small local Dyna-Q agent…";
+  setTimeout(()=>setGame("wall_gate","Dyna-Q trained. Try a shot, then compare its choice."),25);
+})();
+</script>
+</body>
+</html>

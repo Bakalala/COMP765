@@ -1,0 +1,7 @@
+course,planning_steps,seeds_reaching_threshold,episodes_to_80pct_rolling20_mean,episodes_to_80pct_rolling20_sd,first50_training_success_mean_across_seeds,first50_training_success_sd_across_seeds,final50_checkpoint_greedy_success_mean,final50_checkpoint_greedy_success_sd,final50_checkpoint_strokes_if_sunk_mean,real_shots_to_threshold_mean,real_shots_to_threshold_sd,seeds_greedy_stable,greedy_stable_episode_mean
+easy,0,5,79.0,9.924716620639604,0.448,0.026832815729997482,1.0,0.0,2.0,1135.8,115.18550256000101,5,169.8
+easy,5,5,61.0,4.636809247747852,0.528,0.05585696017507577,1.0,0.0,2.0,827.2,53.59757457198973,5,57.6
+easy,20,5,49.2,7.886697661252142,0.572,0.05019960159204452,1.0,0.0,2.0,713.2,131.57013338900285,5,48.6
+wall_gate,0,5,284.8,18.430952227163957,0.028,0.01788854381999832,0.4,0.490880693673816,5.35,5062.8,230.89651361594875,0,nan
+wall_gate,5,5,103.8,8.07465169527454,0.036,0.021908902300206645,1.0,0.0,5.0,1848.2,111.86018058272569,5,129.2
+wall_gate,20,5,89.8,4.658325879540846,0.044,0.026076809620810593,1.0,0.0,5.0,1607.0,59.097377268369534,5,74.6
