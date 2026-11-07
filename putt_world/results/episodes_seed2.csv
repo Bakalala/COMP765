@@ -1,0 +1,881 @@
+course,seed,planner,episode,sunk,shots
+open,2,random,0,0,10
+open,2,random,1,0,10
+open,2,random,2,0,10
+open,2,random,3,0,10
+open,2,random,4,0,10
+open,2,random,5,0,10
+open,2,random,6,0,10
+open,2,random,7,0,10
+open,2,random,8,0,10
+open,2,random,9,1,9
+open,2,random,10,0,10
+open,2,random,11,0,10
+open,2,random,12,0,10
+open,2,random,13,0,10
+open,2,random,14,0,10
+open,2,random,15,0,10
+open,2,random,16,0,10
+open,2,random,17,0,10
+open,2,random,18,0,10
+open,2,random,19,0,10
+open,2,aim,0,1,1
+open,2,aim,1,1,1
+open,2,aim,2,1,1
+open,2,aim,3,1,1
+open,2,aim,4,1,1
+open,2,aim,5,1,1
+open,2,aim,6,1,1
+open,2,aim,7,1,1
+open,2,aim,8,1,3
+open,2,aim,9,1,1
+open,2,aim,10,1,1
+open,2,aim,11,1,1
+open,2,aim,12,1,1
+open,2,aim,13,1,1
+open,2,aim,14,1,3
+open,2,aim,15,1,1
+open,2,aim,16,1,1
+open,2,aim,17,1,1
+open,2,aim,18,1,1
+open,2,aim,19,1,2
+open,2,"true physics, straight cost",0,1,1
+open,2,"true physics, straight cost",1,1,1
+open,2,"true physics, straight cost",2,1,1
+open,2,"true physics, straight cost",3,1,1
+open,2,"true physics, straight cost",4,1,1
+open,2,"true physics, straight cost",5,1,1
+open,2,"true physics, straight cost",6,1,2
+open,2,"true physics, straight cost",7,1,1
+open,2,"true physics, straight cost",8,1,2
+open,2,"true physics, straight cost",9,1,1
+open,2,"true physics, straight cost",10,1,1
+open,2,"true physics, straight cost",11,1,1
+open,2,"true physics, straight cost",12,1,1
+open,2,"true physics, straight cost",13,1,1
+open,2,"true physics, straight cost",14,1,2
+open,2,"true physics, straight cost",15,1,1
+open,2,"true physics, straight cost",16,1,1
+open,2,"true physics, straight cost",17,1,4
+open,2,"true physics, straight cost",18,1,1
+open,2,"true physics, straight cost",19,1,1
+open,2,"true physics, geodesic cost",0,1,1
+open,2,"true physics, geodesic cost",1,1,1
+open,2,"true physics, geodesic cost",2,1,1
+open,2,"true physics, geodesic cost",3,1,1
+open,2,"true physics, geodesic cost",4,1,1
+open,2,"true physics, geodesic cost",5,1,1
+open,2,"true physics, geodesic cost",6,1,1
+open,2,"true physics, geodesic cost",7,1,1
+open,2,"true physics, geodesic cost",8,1,2
+open,2,"true physics, geodesic cost",9,1,1
+open,2,"true physics, geodesic cost",10,1,1
+open,2,"true physics, geodesic cost",11,1,1
+open,2,"true physics, geodesic cost",12,1,1
+open,2,"true physics, geodesic cost",13,1,1
+open,2,"true physics, geodesic cost",14,1,2
+open,2,"true physics, geodesic cost",15,1,1
+open,2,"true physics, geodesic cost",16,1,1
+open,2,"true physics, geodesic cost",17,1,1
+open,2,"true physics, geodesic cost",18,1,1
+open,2,"true physics, geodesic cost",19,1,1
+open,2,"latent L2, H=1",0,1,1
+open,2,"latent L2, H=1",1,1,1
+open,2,"latent L2, H=1",2,1,2
+open,2,"latent L2, H=1",3,1,1
+open,2,"latent L2, H=1",4,1,1
+open,2,"latent L2, H=1",5,1,1
+open,2,"latent L2, H=1",6,1,1
+open,2,"latent L2, H=1",7,1,1
+open,2,"latent L2, H=1",8,1,2
+open,2,"latent L2, H=1",9,1,1
+open,2,"latent L2, H=1",10,1,1
+open,2,"latent L2, H=1",11,1,2
+open,2,"latent L2, H=1",12,1,1
+open,2,"latent L2, H=1",13,1,3
+open,2,"latent L2, H=1",14,1,2
+open,2,"latent L2, H=1",15,1,1
+open,2,"latent L2, H=1",16,1,1
+open,2,"latent L2, H=1",17,1,2
+open,2,"latent L2, H=1",18,1,1
+open,2,"latent L2, H=1",19,1,1
+open,2,"latent L2, H=2",0,0,10
+open,2,"latent L2, H=2",1,0,10
+open,2,"latent L2, H=2",2,1,6
+open,2,"latent L2, H=2",3,1,9
+open,2,"latent L2, H=2",4,0,10
+open,2,"latent L2, H=2",5,1,4
+open,2,"latent L2, H=2",6,0,10
+open,2,"latent L2, H=2",7,0,10
+open,2,"latent L2, H=2",8,1,8
+open,2,"latent L2, H=2",9,0,10
+open,2,"latent L2, H=2",10,0,10
+open,2,"latent L2, H=2",11,0,10
+open,2,"latent L2, H=2",12,0,10
+open,2,"latent L2, H=2",13,0,10
+open,2,"latent L2, H=2",14,0,10
+open,2,"latent L2, H=2",15,0,10
+open,2,"latent L2, H=2",16,1,9
+open,2,"latent L2, H=2",17,1,6
+open,2,"latent L2, H=2",18,0,10
+open,2,"latent L2, H=2",19,0,10
+open,2,"latent L2, H=3",0,1,8
+open,2,"latent L2, H=3",1,1,7
+open,2,"latent L2, H=3",2,0,10
+open,2,"latent L2, H=3",3,1,4
+open,2,"latent L2, H=3",4,0,10
+open,2,"latent L2, H=3",5,0,10
+open,2,"latent L2, H=3",6,0,10
+open,2,"latent L2, H=3",7,0,10
+open,2,"latent L2, H=3",8,0,10
+open,2,"latent L2, H=3",9,1,7
+open,2,"latent L2, H=3",10,0,10
+open,2,"latent L2, H=3",11,0,10
+open,2,"latent L2, H=3",12,0,10
+open,2,"latent L2, H=3",13,0,10
+open,2,"latent L2, H=3",14,0,10
+open,2,"latent L2, H=3",15,0,10
+open,2,"latent L2, H=3",16,0,10
+open,2,"latent L2, H=3",17,0,10
+open,2,"latent L2, H=3",18,1,6
+open,2,"latent L2, H=3",19,0,10
+open,2,"latent L2 anytime, H=3",0,1,2
+open,2,"latent L2 anytime, H=3",1,1,1
+open,2,"latent L2 anytime, H=3",2,1,1
+open,2,"latent L2 anytime, H=3",3,1,1
+open,2,"latent L2 anytime, H=3",4,1,2
+open,2,"latent L2 anytime, H=3",5,1,1
+open,2,"latent L2 anytime, H=3",6,1,2
+open,2,"latent L2 anytime, H=3",7,1,3
+open,2,"latent L2 anytime, H=3",8,1,3
+open,2,"latent L2 anytime, H=3",9,1,2
+open,2,"latent L2 anytime, H=3",10,1,2
+open,2,"latent L2 anytime, H=3",11,1,3
+open,2,"latent L2 anytime, H=3",12,1,2
+open,2,"latent L2 anytime, H=3",13,1,2
+open,2,"latent L2 anytime, H=3",14,1,2
+open,2,"latent L2 anytime, H=3",15,1,2
+open,2,"latent L2 anytime, H=3",16,1,1
+open,2,"latent L2 anytime, H=3",17,1,1
+open,2,"latent L2 anytime, H=3",18,1,2
+open,2,"latent L2 anytime, H=3",19,1,2
+open,2,"neighbour graph, H=1",0,1,1
+open,2,"neighbour graph, H=1",1,1,1
+open,2,"neighbour graph, H=1",2,0,10
+open,2,"neighbour graph, H=1",3,1,1
+open,2,"neighbour graph, H=1",4,1,1
+open,2,"neighbour graph, H=1",5,1,1
+open,2,"neighbour graph, H=1",6,1,1
+open,2,"neighbour graph, H=1",7,1,1
+open,2,"neighbour graph, H=1",8,1,3
+open,2,"neighbour graph, H=1",9,1,1
+open,2,"neighbour graph, H=1",10,1,1
+open,2,"neighbour graph, H=1",11,0,10
+open,2,"neighbour graph, H=1",12,1,1
+open,2,"neighbour graph, H=1",13,1,1
+open,2,"neighbour graph, H=1",14,1,3
+open,2,"neighbour graph, H=1",15,1,1
+open,2,"neighbour graph, H=1",16,1,1
+open,2,"neighbour graph, H=1",17,1,2
+open,2,"neighbour graph, H=1",18,1,1
+open,2,"neighbour graph, H=1",19,1,1
+open,2,"shot graph replay, H=1",0,0,10
+open,2,"shot graph replay, H=1",1,1,1
+open,2,"shot graph replay, H=1",2,0,10
+open,2,"shot graph replay, H=1",3,1,1
+open,2,"shot graph replay, H=1",4,0,10
+open,2,"shot graph replay, H=1",5,0,10
+open,2,"shot graph replay, H=1",6,1,2
+open,2,"shot graph replay, H=1",7,0,10
+open,2,"shot graph replay, H=1",8,0,10
+open,2,"shot graph replay, H=1",9,1,1
+open,2,"shot graph replay, H=1",10,0,10
+open,2,"shot graph replay, H=1",11,0,10
+open,2,"shot graph replay, H=1",12,0,10
+open,2,"shot graph replay, H=1",13,0,10
+open,2,"shot graph replay, H=1",14,0,10
+open,2,"shot graph replay, H=1",15,1,1
+open,2,"shot graph replay, H=1",16,0,10
+open,2,"shot graph replay, H=1",17,1,1
+open,2,"shot graph replay, H=1",18,1,1
+open,2,"shot graph replay, H=1",19,1,1
+open,2,"shot graph model, H=1",0,0,10
+open,2,"shot graph model, H=1",1,1,1
+open,2,"shot graph model, H=1",2,0,10
+open,2,"shot graph model, H=1",3,1,1
+open,2,"shot graph model, H=1",4,0,10
+open,2,"shot graph model, H=1",5,0,10
+open,2,"shot graph model, H=1",6,1,1
+open,2,"shot graph model, H=1",7,0,10
+open,2,"shot graph model, H=1",8,0,10
+open,2,"shot graph model, H=1",9,1,1
+open,2,"shot graph model, H=1",10,0,10
+open,2,"shot graph model, H=1",11,0,10
+open,2,"shot graph model, H=1",12,0,10
+open,2,"shot graph model, H=1",13,0,10
+open,2,"shot graph model, H=1",14,0,10
+open,2,"shot graph model, H=1",15,1,1
+open,2,"shot graph model, H=1",16,0,10
+open,2,"shot graph model, H=1",17,1,2
+open,2,"shot graph model, H=1",18,0,10
+open,2,"shot graph model, H=1",19,1,1
+gate,2,random,0,0,10
+gate,2,random,1,0,10
+gate,2,random,2,0,10
+gate,2,random,3,0,10
+gate,2,random,4,0,10
+gate,2,random,5,0,10
+gate,2,random,6,0,10
+gate,2,random,7,1,4
+gate,2,random,8,0,10
+gate,2,random,9,0,10
+gate,2,random,10,0,10
+gate,2,random,11,0,10
+gate,2,random,12,0,10
+gate,2,random,13,1,4
+gate,2,random,14,0,10
+gate,2,random,15,0,10
+gate,2,random,16,0,10
+gate,2,random,17,0,10
+gate,2,random,18,0,10
+gate,2,random,19,0,10
+gate,2,aim,0,0,10
+gate,2,aim,1,0,10
+gate,2,aim,2,1,1
+gate,2,aim,3,0,10
+gate,2,aim,4,0,10
+gate,2,aim,5,1,1
+gate,2,aim,6,1,1
+gate,2,aim,7,0,10
+gate,2,aim,8,0,10
+gate,2,aim,9,0,10
+gate,2,aim,10,0,10
+gate,2,aim,11,1,1
+gate,2,aim,12,0,10
+gate,2,aim,13,1,1
+gate,2,aim,14,0,10
+gate,2,aim,15,0,10
+gate,2,aim,16,1,1
+gate,2,aim,17,1,1
+gate,2,aim,18,0,10
+gate,2,aim,19,0,10
+gate,2,"true physics, straight cost",0,0,10
+gate,2,"true physics, straight cost",1,1,2
+gate,2,"true physics, straight cost",2,1,1
+gate,2,"true physics, straight cost",3,0,10
+gate,2,"true physics, straight cost",4,1,2
+gate,2,"true physics, straight cost",5,1,1
+gate,2,"true physics, straight cost",6,1,1
+gate,2,"true physics, straight cost",7,1,2
+gate,2,"true physics, straight cost",8,0,10
+gate,2,"true physics, straight cost",9,0,10
+gate,2,"true physics, straight cost",10,1,2
+gate,2,"true physics, straight cost",11,1,2
+gate,2,"true physics, straight cost",12,1,2
+gate,2,"true physics, straight cost",13,1,1
+gate,2,"true physics, straight cost",14,0,10
+gate,2,"true physics, straight cost",15,1,3
+gate,2,"true physics, straight cost",16,1,3
+gate,2,"true physics, straight cost",17,1,2
+gate,2,"true physics, straight cost",18,0,10
+gate,2,"true physics, straight cost",19,0,10
+gate,2,"true physics, geodesic cost",0,1,2
+gate,2,"true physics, geodesic cost",1,1,5
+gate,2,"true physics, geodesic cost",2,1,2
+gate,2,"true physics, geodesic cost",3,1,3
+gate,2,"true physics, geodesic cost",4,1,2
+gate,2,"true physics, geodesic cost",5,1,1
+gate,2,"true physics, geodesic cost",6,1,1
+gate,2,"true physics, geodesic cost",7,1,5
+gate,2,"true physics, geodesic cost",8,1,3
+gate,2,"true physics, geodesic cost",9,1,4
+gate,2,"true physics, geodesic cost",10,1,2
+gate,2,"true physics, geodesic cost",11,1,7
+gate,2,"true physics, geodesic cost",12,1,3
+gate,2,"true physics, geodesic cost",13,1,1
+gate,2,"true physics, geodesic cost",14,1,2
+gate,2,"true physics, geodesic cost",15,1,2
+gate,2,"true physics, geodesic cost",16,1,1
+gate,2,"true physics, geodesic cost",17,1,1
+gate,2,"true physics, geodesic cost",18,1,3
+gate,2,"true physics, geodesic cost",19,1,3
+gate,2,"latent L2, H=1",0,1,2
+gate,2,"latent L2, H=1",1,1,2
+gate,2,"latent L2, H=1",2,1,1
+gate,2,"latent L2, H=1",3,1,2
+gate,2,"latent L2, H=1",4,1,2
+gate,2,"latent L2, H=1",5,1,2
+gate,2,"latent L2, H=1",6,1,1
+gate,2,"latent L2, H=1",7,1,2
+gate,2,"latent L2, H=1",8,1,3
+gate,2,"latent L2, H=1",9,1,3
+gate,2,"latent L2, H=1",10,1,2
+gate,2,"latent L2, H=1",11,1,1
+gate,2,"latent L2, H=1",12,1,2
+gate,2,"latent L2, H=1",13,1,1
+gate,2,"latent L2, H=1",14,1,3
+gate,2,"latent L2, H=1",15,1,2
+gate,2,"latent L2, H=1",16,1,1
+gate,2,"latent L2, H=1",17,1,2
+gate,2,"latent L2, H=1",18,1,3
+gate,2,"latent L2, H=1",19,1,4
+gate,2,"latent L2, H=2",0,0,10
+gate,2,"latent L2, H=2",1,0,10
+gate,2,"latent L2, H=2",2,0,10
+gate,2,"latent L2, H=2",3,0,10
+gate,2,"latent L2, H=2",4,0,10
+gate,2,"latent L2, H=2",5,0,10
+gate,2,"latent L2, H=2",6,0,10
+gate,2,"latent L2, H=2",7,0,10
+gate,2,"latent L2, H=2",8,0,10
+gate,2,"latent L2, H=2",9,0,10
+gate,2,"latent L2, H=2",10,0,10
+gate,2,"latent L2, H=2",11,0,10
+gate,2,"latent L2, H=2",12,0,10
+gate,2,"latent L2, H=2",13,0,10
+gate,2,"latent L2, H=2",14,0,10
+gate,2,"latent L2, H=2",15,0,10
+gate,2,"latent L2, H=2",16,1,4
+gate,2,"latent L2, H=2",17,0,10
+gate,2,"latent L2, H=2",18,0,10
+gate,2,"latent L2, H=2",19,0,10
+gate,2,"latent L2, H=3",0,0,10
+gate,2,"latent L2, H=3",1,0,10
+gate,2,"latent L2, H=3",2,1,5
+gate,2,"latent L2, H=3",3,0,10
+gate,2,"latent L2, H=3",4,0,10
+gate,2,"latent L2, H=3",5,1,4
+gate,2,"latent L2, H=3",6,0,10
+gate,2,"latent L2, H=3",7,0,10
+gate,2,"latent L2, H=3",8,0,10
+gate,2,"latent L2, H=3",9,0,10
+gate,2,"latent L2, H=3",10,0,10
+gate,2,"latent L2, H=3",11,0,10
+gate,2,"latent L2, H=3",12,0,10
+gate,2,"latent L2, H=3",13,0,10
+gate,2,"latent L2, H=3",14,1,4
+gate,2,"latent L2, H=3",15,0,10
+gate,2,"latent L2, H=3",16,0,10
+gate,2,"latent L2, H=3",17,0,10
+gate,2,"latent L2, H=3",18,0,10
+gate,2,"latent L2, H=3",19,0,10
+gate,2,"latent L2 anytime, H=3",0,1,4
+gate,2,"latent L2 anytime, H=3",1,1,3
+gate,2,"latent L2 anytime, H=3",2,1,2
+gate,2,"latent L2 anytime, H=3",3,1,2
+gate,2,"latent L2 anytime, H=3",4,1,5
+gate,2,"latent L2 anytime, H=3",5,1,1
+gate,2,"latent L2 anytime, H=3",6,1,1
+gate,2,"latent L2 anytime, H=3",7,1,5
+gate,2,"latent L2 anytime, H=3",8,1,7
+gate,2,"latent L2 anytime, H=3",9,1,4
+gate,2,"latent L2 anytime, H=3",10,1,5
+gate,2,"latent L2 anytime, H=3",11,1,3
+gate,2,"latent L2 anytime, H=3",12,1,5
+gate,2,"latent L2 anytime, H=3",13,1,5
+gate,2,"latent L2 anytime, H=3",14,1,6
+gate,2,"latent L2 anytime, H=3",15,1,3
+gate,2,"latent L2 anytime, H=3",16,1,1
+gate,2,"latent L2 anytime, H=3",17,1,2
+gate,2,"latent L2 anytime, H=3",18,1,3
+gate,2,"latent L2 anytime, H=3",19,1,5
+gate,2,"neighbour graph, H=1",0,1,3
+gate,2,"neighbour graph, H=1",1,1,2
+gate,2,"neighbour graph, H=1",2,1,2
+gate,2,"neighbour graph, H=1",3,1,2
+gate,2,"neighbour graph, H=1",4,1,3
+gate,2,"neighbour graph, H=1",5,1,3
+gate,2,"neighbour graph, H=1",6,1,2
+gate,2,"neighbour graph, H=1",7,1,4
+gate,2,"neighbour graph, H=1",8,1,2
+gate,2,"neighbour graph, H=1",9,1,3
+gate,2,"neighbour graph, H=1",10,1,3
+gate,2,"neighbour graph, H=1",11,1,2
+gate,2,"neighbour graph, H=1",12,1,3
+gate,2,"neighbour graph, H=1",13,1,2
+gate,2,"neighbour graph, H=1",14,1,3
+gate,2,"neighbour graph, H=1",15,1,2
+gate,2,"neighbour graph, H=1",16,1,1
+gate,2,"neighbour graph, H=1",17,1,2
+gate,2,"neighbour graph, H=1",18,1,3
+gate,2,"neighbour graph, H=1",19,1,3
+gate,2,"shot graph replay, H=1",0,1,3
+gate,2,"shot graph replay, H=1",1,1,2
+gate,2,"shot graph replay, H=1",2,1,1
+gate,2,"shot graph replay, H=1",3,1,3
+gate,2,"shot graph replay, H=1",4,1,2
+gate,2,"shot graph replay, H=1",5,1,1
+gate,2,"shot graph replay, H=1",6,0,10
+gate,2,"shot graph replay, H=1",7,1,3
+gate,2,"shot graph replay, H=1",8,1,2
+gate,2,"shot graph replay, H=1",9,1,4
+gate,2,"shot graph replay, H=1",10,1,2
+gate,2,"shot graph replay, H=1",11,1,3
+gate,2,"shot graph replay, H=1",12,1,2
+gate,2,"shot graph replay, H=1",13,1,2
+gate,2,"shot graph replay, H=1",14,1,2
+gate,2,"shot graph replay, H=1",15,1,2
+gate,2,"shot graph replay, H=1",16,1,1
+gate,2,"shot graph replay, H=1",17,1,2
+gate,2,"shot graph replay, H=1",18,1,2
+gate,2,"shot graph replay, H=1",19,1,6
+gate,2,"shot graph model, H=1",0,1,5
+gate,2,"shot graph model, H=1",1,1,3
+gate,2,"shot graph model, H=1",2,1,1
+gate,2,"shot graph model, H=1",3,1,5
+gate,2,"shot graph model, H=1",4,0,10
+gate,2,"shot graph model, H=1",5,0,10
+gate,2,"shot graph model, H=1",6,1,1
+gate,2,"shot graph model, H=1",7,1,2
+gate,2,"shot graph model, H=1",8,1,3
+gate,2,"shot graph model, H=1",9,1,3
+gate,2,"shot graph model, H=1",10,1,2
+gate,2,"shot graph model, H=1",11,0,10
+gate,2,"shot graph model, H=1",12,1,2
+gate,2,"shot graph model, H=1",13,1,2
+gate,2,"shot graph model, H=1",14,1,4
+gate,2,"shot graph model, H=1",15,1,2
+gate,2,"shot graph model, H=1",16,1,1
+gate,2,"shot graph model, H=1",17,1,1
+gate,2,"shot graph model, H=1",18,1,3
+gate,2,"shot graph model, H=1",19,1,4
+slalom,2,random,0,0,10
+slalom,2,random,1,1,6
+slalom,2,random,2,0,10
+slalom,2,random,3,0,10
+slalom,2,random,4,0,10
+slalom,2,random,5,0,10
+slalom,2,random,6,0,10
+slalom,2,random,7,0,10
+slalom,2,random,8,0,10
+slalom,2,random,9,0,10
+slalom,2,random,10,0,10
+slalom,2,random,11,0,10
+slalom,2,random,12,0,10
+slalom,2,random,13,0,10
+slalom,2,random,14,0,10
+slalom,2,random,15,0,10
+slalom,2,random,16,1,1
+slalom,2,random,17,0,10
+slalom,2,random,18,0,10
+slalom,2,random,19,0,10
+slalom,2,aim,0,0,10
+slalom,2,aim,1,0,10
+slalom,2,aim,2,1,1
+slalom,2,aim,3,0,10
+slalom,2,aim,4,1,1
+slalom,2,aim,5,1,1
+slalom,2,aim,6,0,10
+slalom,2,aim,7,0,10
+slalom,2,aim,8,0,10
+slalom,2,aim,9,0,10
+slalom,2,aim,10,1,1
+slalom,2,aim,11,0,10
+slalom,2,aim,12,0,10
+slalom,2,aim,13,0,10
+slalom,2,aim,14,0,10
+slalom,2,aim,15,0,10
+slalom,2,aim,16,1,1
+slalom,2,aim,17,0,10
+slalom,2,aim,18,0,10
+slalom,2,aim,19,0,10
+slalom,2,"true physics, straight cost",0,0,10
+slalom,2,"true physics, straight cost",1,0,10
+slalom,2,"true physics, straight cost",2,1,2
+slalom,2,"true physics, straight cost",3,0,10
+slalom,2,"true physics, straight cost",4,1,1
+slalom,2,"true physics, straight cost",5,1,3
+slalom,2,"true physics, straight cost",6,0,10
+slalom,2,"true physics, straight cost",7,0,10
+slalom,2,"true physics, straight cost",8,0,10
+slalom,2,"true physics, straight cost",9,0,10
+slalom,2,"true physics, straight cost",10,1,3
+slalom,2,"true physics, straight cost",11,0,10
+slalom,2,"true physics, straight cost",12,0,10
+slalom,2,"true physics, straight cost",13,0,10
+slalom,2,"true physics, straight cost",14,0,10
+slalom,2,"true physics, straight cost",15,0,10
+slalom,2,"true physics, straight cost",16,1,2
+slalom,2,"true physics, straight cost",17,0,10
+slalom,2,"true physics, straight cost",18,0,10
+slalom,2,"true physics, straight cost",19,0,10
+slalom,2,"true physics, geodesic cost",0,1,3
+slalom,2,"true physics, geodesic cost",1,1,4
+slalom,2,"true physics, geodesic cost",2,1,1
+slalom,2,"true physics, geodesic cost",3,1,4
+slalom,2,"true physics, geodesic cost",4,1,2
+slalom,2,"true physics, geodesic cost",5,1,1
+slalom,2,"true physics, geodesic cost",6,1,3
+slalom,2,"true physics, geodesic cost",7,1,4
+slalom,2,"true physics, geodesic cost",8,1,3
+slalom,2,"true physics, geodesic cost",9,1,3
+slalom,2,"true physics, geodesic cost",10,1,1
+slalom,2,"true physics, geodesic cost",11,1,3
+slalom,2,"true physics, geodesic cost",12,1,3
+slalom,2,"true physics, geodesic cost",13,1,4
+slalom,2,"true physics, geodesic cost",14,1,3
+slalom,2,"true physics, geodesic cost",15,1,2
+slalom,2,"true physics, geodesic cost",16,1,1
+slalom,2,"true physics, geodesic cost",17,1,2
+slalom,2,"true physics, geodesic cost",18,1,4
+slalom,2,"true physics, geodesic cost",19,1,3
+slalom,2,"latent L2, H=1",0,1,4
+slalom,2,"latent L2, H=1",1,1,3
+slalom,2,"latent L2, H=1",2,1,2
+slalom,2,"latent L2, H=1",3,1,7
+slalom,2,"latent L2, H=1",4,1,1
+slalom,2,"latent L2, H=1",5,1,1
+slalom,2,"latent L2, H=1",6,0,10
+slalom,2,"latent L2, H=1",7,1,6
+slalom,2,"latent L2, H=1",8,1,6
+slalom,2,"latent L2, H=1",9,1,5
+slalom,2,"latent L2, H=1",10,1,3
+slalom,2,"latent L2, H=1",11,1,5
+slalom,2,"latent L2, H=1",12,1,4
+slalom,2,"latent L2, H=1",13,0,10
+slalom,2,"latent L2, H=1",14,1,3
+slalom,2,"latent L2, H=1",15,1,3
+slalom,2,"latent L2, H=1",16,1,1
+slalom,2,"latent L2, H=1",17,1,3
+slalom,2,"latent L2, H=1",18,1,6
+slalom,2,"latent L2, H=1",19,1,5
+slalom,2,"latent L2, H=2",0,1,8
+slalom,2,"latent L2, H=2",1,1,5
+slalom,2,"latent L2, H=2",2,1,9
+slalom,2,"latent L2, H=2",3,1,7
+slalom,2,"latent L2, H=2",4,1,1
+slalom,2,"latent L2, H=2",5,0,10
+slalom,2,"latent L2, H=2",6,1,9
+slalom,2,"latent L2, H=2",7,0,10
+slalom,2,"latent L2, H=2",8,1,7
+slalom,2,"latent L2, H=2",9,1,9
+slalom,2,"latent L2, H=2",10,1,5
+slalom,2,"latent L2, H=2",11,0,10
+slalom,2,"latent L2, H=2",12,0,10
+slalom,2,"latent L2, H=2",13,0,10
+slalom,2,"latent L2, H=2",14,1,5
+slalom,2,"latent L2, H=2",15,1,5
+slalom,2,"latent L2, H=2",16,1,1
+slalom,2,"latent L2, H=2",17,0,10
+slalom,2,"latent L2, H=2",18,1,8
+slalom,2,"latent L2, H=2",19,0,10
+slalom,2,"latent L2, H=3",0,0,10
+slalom,2,"latent L2, H=3",1,0,10
+slalom,2,"latent L2, H=3",2,1,6
+slalom,2,"latent L2, H=3",3,1,7
+slalom,2,"latent L2, H=3",4,1,7
+slalom,2,"latent L2, H=3",5,0,10
+slalom,2,"latent L2, H=3",6,0,10
+slalom,2,"latent L2, H=3",7,0,10
+slalom,2,"latent L2, H=3",8,1,10
+slalom,2,"latent L2, H=3",9,1,8
+slalom,2,"latent L2, H=3",10,1,6
+slalom,2,"latent L2, H=3",11,0,10
+slalom,2,"latent L2, H=3",12,1,7
+slalom,2,"latent L2, H=3",13,0,10
+slalom,2,"latent L2, H=3",14,1,5
+slalom,2,"latent L2, H=3",15,0,10
+slalom,2,"latent L2, H=3",16,1,8
+slalom,2,"latent L2, H=3",17,1,10
+slalom,2,"latent L2, H=3",18,1,10
+slalom,2,"latent L2, H=3",19,0,10
+slalom,2,"latent L2 anytime, H=3",0,1,5
+slalom,2,"latent L2 anytime, H=3",1,1,3
+slalom,2,"latent L2 anytime, H=3",2,1,4
+slalom,2,"latent L2 anytime, H=3",3,1,5
+slalom,2,"latent L2 anytime, H=3",4,1,1
+slalom,2,"latent L2 anytime, H=3",5,1,4
+slalom,2,"latent L2 anytime, H=3",6,1,5
+slalom,2,"latent L2 anytime, H=3",7,1,7
+slalom,2,"latent L2 anytime, H=3",8,1,5
+slalom,2,"latent L2 anytime, H=3",9,1,5
+slalom,2,"latent L2 anytime, H=3",10,1,3
+slalom,2,"latent L2 anytime, H=3",11,1,6
+slalom,2,"latent L2 anytime, H=3",12,1,4
+slalom,2,"latent L2 anytime, H=3",13,0,10
+slalom,2,"latent L2 anytime, H=3",14,1,4
+slalom,2,"latent L2 anytime, H=3",15,1,4
+slalom,2,"latent L2 anytime, H=3",16,1,2
+slalom,2,"latent L2 anytime, H=3",17,1,3
+slalom,2,"latent L2 anytime, H=3",18,1,8
+slalom,2,"latent L2 anytime, H=3",19,1,6
+slalom,2,"neighbour graph, H=1",0,1,3
+slalom,2,"neighbour graph, H=1",1,1,3
+slalom,2,"neighbour graph, H=1",2,1,2
+slalom,2,"neighbour graph, H=1",3,1,3
+slalom,2,"neighbour graph, H=1",4,1,1
+slalom,2,"neighbour graph, H=1",5,1,2
+slalom,2,"neighbour graph, H=1",6,1,3
+slalom,2,"neighbour graph, H=1",7,1,4
+slalom,2,"neighbour graph, H=1",8,1,4
+slalom,2,"neighbour graph, H=1",9,1,3
+slalom,2,"neighbour graph, H=1",10,1,2
+slalom,2,"neighbour graph, H=1",11,1,5
+slalom,2,"neighbour graph, H=1",12,1,3
+slalom,2,"neighbour graph, H=1",13,1,4
+slalom,2,"neighbour graph, H=1",14,1,3
+slalom,2,"neighbour graph, H=1",15,1,3
+slalom,2,"neighbour graph, H=1",16,1,2
+slalom,2,"neighbour graph, H=1",17,1,3
+slalom,2,"neighbour graph, H=1",18,1,5
+slalom,2,"neighbour graph, H=1",19,1,4
+slalom,2,"shot graph replay, H=1",0,1,4
+slalom,2,"shot graph replay, H=1",1,1,5
+slalom,2,"shot graph replay, H=1",2,1,2
+slalom,2,"shot graph replay, H=1",3,1,5
+slalom,2,"shot graph replay, H=1",4,1,1
+slalom,2,"shot graph replay, H=1",5,1,2
+slalom,2,"shot graph replay, H=1",6,1,3
+slalom,2,"shot graph replay, H=1",7,1,7
+slalom,2,"shot graph replay, H=1",8,1,6
+slalom,2,"shot graph replay, H=1",9,1,6
+slalom,2,"shot graph replay, H=1",10,1,3
+slalom,2,"shot graph replay, H=1",11,1,5
+slalom,2,"shot graph replay, H=1",12,1,3
+slalom,2,"shot graph replay, H=1",13,1,6
+slalom,2,"shot graph replay, H=1",14,1,2
+slalom,2,"shot graph replay, H=1",15,1,4
+slalom,2,"shot graph replay, H=1",16,1,1
+slalom,2,"shot graph replay, H=1",17,1,3
+slalom,2,"shot graph replay, H=1",18,1,6
+slalom,2,"shot graph replay, H=1",19,1,6
+slalom,2,"shot graph model, H=1",0,1,4
+slalom,2,"shot graph model, H=1",1,1,3
+slalom,2,"shot graph model, H=1",2,1,2
+slalom,2,"shot graph model, H=1",3,1,4
+slalom,2,"shot graph model, H=1",4,1,1
+slalom,2,"shot graph model, H=1",5,1,2
+slalom,2,"shot graph model, H=1",6,1,8
+slalom,2,"shot graph model, H=1",7,1,6
+slalom,2,"shot graph model, H=1",8,1,6
+slalom,2,"shot graph model, H=1",9,1,6
+slalom,2,"shot graph model, H=1",10,1,3
+slalom,2,"shot graph model, H=1",11,1,6
+slalom,2,"shot graph model, H=1",12,1,4
+slalom,2,"shot graph model, H=1",13,1,4
+slalom,2,"shot graph model, H=1",14,1,3
+slalom,2,"shot graph model, H=1",15,1,4
+slalom,2,"shot graph model, H=1",16,1,1
+slalom,2,"shot graph model, H=1",17,1,3
+slalom,2,"shot graph model, H=1",18,1,7
+slalom,2,"shot graph model, H=1",19,1,6
+pocket,2,random,0,0,10
+pocket,2,random,1,0,10
+pocket,2,random,2,0,10
+pocket,2,random,3,0,10
+pocket,2,random,4,0,10
+pocket,2,random,5,1,5
+pocket,2,random,6,1,2
+pocket,2,random,7,0,10
+pocket,2,random,8,0,10
+pocket,2,random,9,0,10
+pocket,2,random,10,0,10
+pocket,2,random,11,0,10
+pocket,2,random,12,0,10
+pocket,2,random,13,0,10
+pocket,2,random,14,0,10
+pocket,2,random,15,0,10
+pocket,2,random,16,0,10
+pocket,2,random,17,0,10
+pocket,2,random,18,0,10
+pocket,2,random,19,0,10
+pocket,2,aim,0,0,10
+pocket,2,aim,1,0,10
+pocket,2,aim,2,1,1
+pocket,2,aim,3,0,10
+pocket,2,aim,4,0,10
+pocket,2,aim,5,1,1
+pocket,2,aim,6,1,1
+pocket,2,aim,7,0,10
+pocket,2,aim,8,0,10
+pocket,2,aim,9,0,10
+pocket,2,aim,10,0,10
+pocket,2,aim,11,0,10
+pocket,2,aim,12,0,10
+pocket,2,aim,13,0,10
+pocket,2,aim,14,0,10
+pocket,2,aim,15,0,10
+pocket,2,aim,16,0,10
+pocket,2,aim,17,0,10
+pocket,2,aim,18,0,10
+pocket,2,aim,19,0,10
+pocket,2,"true physics, straight cost",0,0,10
+pocket,2,"true physics, straight cost",1,0,10
+pocket,2,"true physics, straight cost",2,1,1
+pocket,2,"true physics, straight cost",3,0,10
+pocket,2,"true physics, straight cost",4,0,10
+pocket,2,"true physics, straight cost",5,1,4
+pocket,2,"true physics, straight cost",6,1,1
+pocket,2,"true physics, straight cost",7,0,10
+pocket,2,"true physics, straight cost",8,0,10
+pocket,2,"true physics, straight cost",9,0,10
+pocket,2,"true physics, straight cost",10,0,10
+pocket,2,"true physics, straight cost",11,1,3
+pocket,2,"true physics, straight cost",12,0,10
+pocket,2,"true physics, straight cost",13,1,2
+pocket,2,"true physics, straight cost",14,0,10
+pocket,2,"true physics, straight cost",15,0,10
+pocket,2,"true physics, straight cost",16,0,10
+pocket,2,"true physics, straight cost",17,0,10
+pocket,2,"true physics, straight cost",18,0,10
+pocket,2,"true physics, straight cost",19,0,10
+pocket,2,"true physics, geodesic cost",0,1,4
+pocket,2,"true physics, geodesic cost",1,1,4
+pocket,2,"true physics, geodesic cost",2,1,1
+pocket,2,"true physics, geodesic cost",3,1,2
+pocket,2,"true physics, geodesic cost",4,1,2
+pocket,2,"true physics, geodesic cost",5,1,1
+pocket,2,"true physics, geodesic cost",6,1,4
+pocket,2,"true physics, geodesic cost",7,1,2
+pocket,2,"true physics, geodesic cost",8,1,5
+pocket,2,"true physics, geodesic cost",9,1,4
+pocket,2,"true physics, geodesic cost",10,1,3
+pocket,2,"true physics, geodesic cost",11,1,2
+pocket,2,"true physics, geodesic cost",12,1,2
+pocket,2,"true physics, geodesic cost",13,1,2
+pocket,2,"true physics, geodesic cost",14,1,2
+pocket,2,"true physics, geodesic cost",15,1,2
+pocket,2,"true physics, geodesic cost",16,1,4
+pocket,2,"true physics, geodesic cost",17,1,2
+pocket,2,"true physics, geodesic cost",18,1,2
+pocket,2,"true physics, geodesic cost",19,1,2
+pocket,2,"latent L2, H=1",0,0,10
+pocket,2,"latent L2, H=1",1,1,2
+pocket,2,"latent L2, H=1",2,0,10
+pocket,2,"latent L2, H=1",3,0,10
+pocket,2,"latent L2, H=1",4,1,2
+pocket,2,"latent L2, H=1",5,0,10
+pocket,2,"latent L2, H=1",6,0,10
+pocket,2,"latent L2, H=1",7,0,10
+pocket,2,"latent L2, H=1",8,1,2
+pocket,2,"latent L2, H=1",9,1,3
+pocket,2,"latent L2, H=1",10,1,2
+pocket,2,"latent L2, H=1",11,1,3
+pocket,2,"latent L2, H=1",12,1,2
+pocket,2,"latent L2, H=1",13,0,10
+pocket,2,"latent L2, H=1",14,0,10
+pocket,2,"latent L2, H=1",15,1,9
+pocket,2,"latent L2, H=1",16,0,10
+pocket,2,"latent L2, H=1",17,0,10
+pocket,2,"latent L2, H=1",18,0,10
+pocket,2,"latent L2, H=1",19,1,2
+pocket,2,"latent L2, H=2",0,1,6
+pocket,2,"latent L2, H=2",1,0,10
+pocket,2,"latent L2, H=2",2,1,3
+pocket,2,"latent L2, H=2",3,1,4
+pocket,2,"latent L2, H=2",4,0,10
+pocket,2,"latent L2, H=2",5,1,7
+pocket,2,"latent L2, H=2",6,1,8
+pocket,2,"latent L2, H=2",7,1,3
+pocket,2,"latent L2, H=2",8,1,4
+pocket,2,"latent L2, H=2",9,0,10
+pocket,2,"latent L2, H=2",10,1,6
+pocket,2,"latent L2, H=2",11,0,10
+pocket,2,"latent L2, H=2",12,0,10
+pocket,2,"latent L2, H=2",13,0,10
+pocket,2,"latent L2, H=2",14,0,10
+pocket,2,"latent L2, H=2",15,1,4
+pocket,2,"latent L2, H=2",16,1,4
+pocket,2,"latent L2, H=2",17,1,9
+pocket,2,"latent L2, H=2",18,0,10
+pocket,2,"latent L2, H=2",19,0,10
+pocket,2,"latent L2, H=3",0,1,7
+pocket,2,"latent L2, H=3",1,0,10
+pocket,2,"latent L2, H=3",2,0,10
+pocket,2,"latent L2, H=3",3,0,10
+pocket,2,"latent L2, H=3",4,0,10
+pocket,2,"latent L2, H=3",5,0,10
+pocket,2,"latent L2, H=3",6,1,3
+pocket,2,"latent L2, H=3",7,0,10
+pocket,2,"latent L2, H=3",8,0,10
+pocket,2,"latent L2, H=3",9,0,10
+pocket,2,"latent L2, H=3",10,0,10
+pocket,2,"latent L2, H=3",11,0,10
+pocket,2,"latent L2, H=3",12,0,10
+pocket,2,"latent L2, H=3",13,0,10
+pocket,2,"latent L2, H=3",14,0,10
+pocket,2,"latent L2, H=3",15,0,10
+pocket,2,"latent L2, H=3",16,0,10
+pocket,2,"latent L2, H=3",17,0,10
+pocket,2,"latent L2, H=3",18,0,10
+pocket,2,"latent L2, H=3",19,0,10
+pocket,2,"latent L2 anytime, H=3",0,0,10
+pocket,2,"latent L2 anytime, H=3",1,0,10
+pocket,2,"latent L2 anytime, H=3",2,0,10
+pocket,2,"latent L2 anytime, H=3",3,0,10
+pocket,2,"latent L2 anytime, H=3",4,0,10
+pocket,2,"latent L2 anytime, H=3",5,1,2
+pocket,2,"latent L2 anytime, H=3",6,1,2
+pocket,2,"latent L2 anytime, H=3",7,0,10
+pocket,2,"latent L2 anytime, H=3",8,0,10
+pocket,2,"latent L2 anytime, H=3",9,0,10
+pocket,2,"latent L2 anytime, H=3",10,0,10
+pocket,2,"latent L2 anytime, H=3",11,0,10
+pocket,2,"latent L2 anytime, H=3",12,1,8
+pocket,2,"latent L2 anytime, H=3",13,0,10
+pocket,2,"latent L2 anytime, H=3",14,0,10
+pocket,2,"latent L2 anytime, H=3",15,0,10
+pocket,2,"latent L2 anytime, H=3",16,0,10
+pocket,2,"latent L2 anytime, H=3",17,0,10
+pocket,2,"latent L2 anytime, H=3",18,0,10
+pocket,2,"latent L2 anytime, H=3",19,1,4
+pocket,2,"neighbour graph, H=1",0,1,3
+pocket,2,"neighbour graph, H=1",1,1,7
+pocket,2,"neighbour graph, H=1",2,1,4
+pocket,2,"neighbour graph, H=1",3,0,10
+pocket,2,"neighbour graph, H=1",4,0,10
+pocket,2,"neighbour graph, H=1",5,1,4
+pocket,2,"neighbour graph, H=1",6,0,10
+pocket,2,"neighbour graph, H=1",7,1,6
+pocket,2,"neighbour graph, H=1",8,0,10
+pocket,2,"neighbour graph, H=1",9,1,3
+pocket,2,"neighbour graph, H=1",10,1,4
+pocket,2,"neighbour graph, H=1",11,0,10
+pocket,2,"neighbour graph, H=1",12,1,3
+pocket,2,"neighbour graph, H=1",13,1,6
+pocket,2,"neighbour graph, H=1",14,1,4
+pocket,2,"neighbour graph, H=1",15,1,5
+pocket,2,"neighbour graph, H=1",16,0,10
+pocket,2,"neighbour graph, H=1",17,0,10
+pocket,2,"neighbour graph, H=1",18,1,3
+pocket,2,"neighbour graph, H=1",19,0,10
+pocket,2,"shot graph replay, H=1",0,1,4
+pocket,2,"shot graph replay, H=1",1,1,4
+pocket,2,"shot graph replay, H=1",2,0,10
+pocket,2,"shot graph replay, H=1",3,0,10
+pocket,2,"shot graph replay, H=1",4,1,2
+pocket,2,"shot graph replay, H=1",5,0,10
+pocket,2,"shot graph replay, H=1",6,0,10
+pocket,2,"shot graph replay, H=1",7,1,2
+pocket,2,"shot graph replay, H=1",8,1,3
+pocket,2,"shot graph replay, H=1",9,1,3
+pocket,2,"shot graph replay, H=1",10,1,2
+pocket,2,"shot graph replay, H=1",11,1,7
+pocket,2,"shot graph replay, H=1",12,0,10
+pocket,2,"shot graph replay, H=1",13,1,2
+pocket,2,"shot graph replay, H=1",14,0,10
+pocket,2,"shot graph replay, H=1",15,1,2
+pocket,2,"shot graph replay, H=1",16,0,10
+pocket,2,"shot graph replay, H=1",17,0,10
+pocket,2,"shot graph replay, H=1",18,1,2
+pocket,2,"shot graph replay, H=1",19,1,2
+pocket,2,"shot graph model, H=1",0,0,10
+pocket,2,"shot graph model, H=1",1,1,3
+pocket,2,"shot graph model, H=1",2,1,5
+pocket,2,"shot graph model, H=1",3,0,10
+pocket,2,"shot graph model, H=1",4,1,2
+pocket,2,"shot graph model, H=1",5,1,6
+pocket,2,"shot graph model, H=1",6,1,7
+pocket,2,"shot graph model, H=1",7,1,4
+pocket,2,"shot graph model, H=1",8,0,10
+pocket,2,"shot graph model, H=1",9,1,2
+pocket,2,"shot graph model, H=1",10,1,3
+pocket,2,"shot graph model, H=1",11,1,3
+pocket,2,"shot graph model, H=1",12,0,10
+pocket,2,"shot graph model, H=1",13,0,10
+pocket,2,"shot graph model, H=1",14,0,10
+pocket,2,"shot graph model, H=1",15,1,2
+pocket,2,"shot graph model, H=1",16,0,10
+pocket,2,"shot graph model, H=1",17,0,10
+pocket,2,"shot graph model, H=1",18,1,7
+pocket,2,"shot graph model, H=1",19,1,2
