@@ -43,9 +43,39 @@ Three model seeds per course and 20 episodes per seed. Seeds are the replication
 | weight | 0.01 | gate | 2 | 12.85 ± 17.47 | 0.34 ± 0.80 | 0.50 ± 0.71 | 0.13 ± 0.13 |
 | weight | 1 | gate | 2 | 2.57 ± 0.11 | 0.54 ± 0.03 | 0.95 ± 0.00 | 0.02 ± 0.00 |
 
-## Ghost-wall control
+## Wall controls
 
 | Variant | Seeds | Wall gap |
 |---|---:|---:|
 | real wall | 3 | 7.88 ± 0.99 |
+| dead wall | 3 | 3.82 ± 0.22 |
 | ghost wall | 3 | 0.96 ± 0.01 |
+
+## Dynamics and cost swapped (H=1)
+
+| Dynamics, cost | open | gate | slalom | pocket |
+|---|---:|---:|---:|---:|
+| physics, latent L2 | 1.00 ± 0.00 | 0.95 ± 0.09 | 0.88 ± 0.13 | 1.00 ± 0.00 |
+| physics, shot graph | 0.72 ± 0.26 | 0.93 ± 0.12 | 0.98 ± 0.03 | 0.92 ± 0.10 |
+| predictor, latent L2 | 0.88 ± 0.16 | 1.00 ± 0.00 | 0.98 ± 0.03 | 0.50 ± 0.18 |
+| predictor, path length | 1.00 ± 0.00 | 1.00 ± 0.00 | 0.88 ± 0.20 | 0.53 ± 0.28 |
+
+## Prediction error and rank
+
+| Course | Error, wall shots | Error, other shots | Effective rank |
+|---|---:|---:|---:|
+| open | nan | 0.031 | 6.2 |
+| gate | 0.052 | 0.044 | 6.8 |
+| slalom | 0.059 | 0.054 | 7.3 |
+| pocket | 0.074 | 0.041 | 7.1 |
+
+## Share of random shots changed by a wall
+
+| Course | Power | Share |
+|---|---:|---:|
+| gate | 1 | 0.228 |
+| gate | 0.5 | 0.068 |
+| gate | 0.25 | 0.017 |
+| slalom | 1 | 0.415 |
+| slalom | 0.5 | 0.134 |
+| slalom | 0.25 | 0.035 |

@@ -53,7 +53,7 @@ def play(model, seed: int = 0, max_shots: int = 10) -> tuple[list[np.ndarray], i
 
 
 def main() -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(8, 4.3), dpi=150)
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4.4), dpi=150)
     fig.patch.set_facecolor("#14231a")
     writer = FFMpegWriter(fps=FPS, codec="libx264", extra_args=["-pix_fmt", "yuv420p"])
     with writer.saving(fig, str(Path(__file__).parent / "putt_world_clip.mp4"), dpi=150):

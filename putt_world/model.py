@@ -38,7 +38,7 @@ class Encoder(nn.Module):
         for inputs, outputs in zip(channels, channels[1:]):
             layers += [nn.Conv2d(inputs, outputs, 3, stride=2, padding=1), nn.GELU()]
         self.conv = nn.Sequential(*layers)
-        # BatchNorm matters: the ball is a few pixels, and at a constant latent the
+        # BatchNorm matters: the ball is a few pixels, and at an all-zero latent the
         # SIGReg gradient vanishes, so without it the encoder collapses.
         self.head = nn.Sequential(nn.Flatten(), nn.Linear(128 * 4 * 4, 512), nn.BatchNorm1d(512), nn.GELU(),
                                   nn.Linear(512, latent_dim), nn.BatchNorm1d(latent_dim))

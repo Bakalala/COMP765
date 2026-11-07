@@ -39,16 +39,17 @@ def measure(model: WorldModel, setting: str, value: float, seed: int) -> dict:
     return row
 
 
-def ghost_control() -> None:
-    """A wall drawn in every image but absent from the physics, against the real gate."""
+def wall_controls() -> None:
+    """The Gate wall as a drawing with no physics, and as a wall that blocks but does not bounce."""
     rows = []
     for seed in (0, 1, 2):
-        path = CHECKPOINTS / "ablation" / f"gate_ghost_seed{seed}.pt"
-        if not path.exists():
-            save(train("gate_ghost", seed=seed), path)
-        rows.append({"variant": "ghost wall", **geometry(load(path), seed)})
+        for variant, course in (("ghost wall", "gate_ghost"), ("dead wall", "gate_dead")):
+            path = CHECKPOINTS / "ablation" / f"{course}_seed{seed}.pt"
+            if not path.exists():
+                save(train(course, seed=seed), path)
+            rows.append({"variant": variant, **geometry(load(path), seed)})
         rows.append({"variant": "real wall", **geometry(load(path_for("gate", seed)), seed)})
-        print(rows[-2:], flush=True)
+        print(rows[-3:], flush=True)
     with (RESULTS / "ghost_control.csv").open("w", newline="") as output:
         writer = csv.DictWriter(output, fieldnames=list(rows[0]))
         writer.writeheader()
@@ -75,6 +76,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     if sys.argv[1:] == ["ghost"]:
-        ghost_control()
+        wall_controls()
     else:
         main()

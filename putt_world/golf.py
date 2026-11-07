@@ -35,6 +35,7 @@ class Course:
     sand: tuple[tuple[float, float, float, float], ...] = field(default=())
     # Drawn exactly like walls, but the ball rolls through them. Used as a control.
     ghosts: tuple[tuple[float, float, float, float], ...] = field(default=())
+    restitution: float = RESTITUTION
 
     @property
     def solid(self) -> np.ndarray:
@@ -58,6 +59,10 @@ COURSES = {
     "gate_ghost": Course(
         "gate_ghost", (0.15, 0.5), (0.85, 0.5),
         ghosts=((0.485, 0.25, 0.515, 1.0),),
+    ),
+    "gate_dead": Course(
+        "gate_dead", (0.15, 0.5), (0.85, 0.5),
+        walls=((0.485, 0.25, 0.515, 1.0),), restitution=0.0,
     ),
     "pocket": Course(
         "pocket", (0.15, 0.5), (0.75, 0.5),
@@ -117,7 +122,7 @@ def simulate(course: Course, pos: np.ndarray, action: np.ndarray, return_paths: 
             blocked = moving & in_rects(trial, solid, BALL_RADIUS)
             step = moving & ~blocked
             pos[step, axis] = trial[step, axis]
-            vel[blocked, axis] *= -RESTITUTION
+            vel[blocked, axis] *= -course.restitution
         speed = np.linalg.norm(vel, axis=1)
         captured = moving & (np.linalg.norm(pos - hole, axis=1) < HOLE_RADIUS) & (speed < CAPTURE_SPEED)
         sunk |= captured

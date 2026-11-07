@@ -64,3 +64,10 @@ def test_simulation_is_deterministic():
 
 def test_points_outside_the_arena_are_not_free():
     assert not is_free(COURSES["open"], np.array([[1.03, 0.5], [-0.02, 0.5], [0.5, 1.2]])).any()
+
+
+def test_dead_wall_blocks_without_bouncing():
+    live, _ = simulate(COURSES["gate"], np.array([[0.4, 0.6]]), np.array([[0.9, 0.0]]))
+    dead, _ = simulate(COURSES["gate_dead"], np.array([[0.4, 0.6]]), np.array([[0.9, 0.0]]))
+    assert dead[0, 0] > live[0, 0]
+    assert dead[0, 0] < 0.485

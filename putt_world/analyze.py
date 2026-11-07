@@ -101,10 +101,37 @@ def ablation_table(rows: list[dict]) -> list[str]:
 
 
 def ghost_table(rows: list[dict]) -> list[str]:
-    lines = ["", "## Ghost-wall control", "", "| Variant | Seeds | Wall gap |", "|---|---:|---:|"]
-    for variant in ("real wall", "ghost wall"):
+    lines = ["", "## Wall controls", "", "| Variant | Seeds | Wall gap |", "|---|---:|---:|"]
+    for variant in ("real wall", "dead wall", "ghost wall"):
         group = [float(r["wall_gap"]) for r in rows if r["variant"] == variant]
         lines.append(f"| {variant} | {len(group)} | {mean_sd(group)} |")
+    return lines
+
+
+def factorial_table() -> list[str]:
+    rows = read("factorial.csv")
+    planners = sorted({row["planner"] for row in rows})
+    lines = ["", "## Dynamics and cost swapped (H=1)", "", "| Dynamics, cost | " + " | ".join(MAIN_COURSES) + " |",
+             "|---|" + "---:|" * len(MAIN_COURSES)]
+    for planner in planners:
+        cells = []
+        for course in MAIN_COURSES:
+            success = [np.mean([int(r["sunk"]) for r in rows if r["planner"] == planner
+                                and r["course"] == course and r["seed"] == str(seed)]) for seed in SEEDS]
+            cells.append(mean_sd(success))
+        lines.append(f"| {planner} | " + " | ".join(cells) + " |")
+    lines += ["", "## Prediction error and rank", "",
+              "| Course | Error, wall shots | Error, other shots | Effective rank |", "|---|---:|---:|---:|"]
+    errors = read("predictor_error.csv")
+    for course in MAIN_COURSES:
+        group = [r for r in errors if r["course"] == course]
+        mean = lambda key: np.nanmean([float(r[key]) for r in group]) if any(
+            r[key] not in ("", "nan") for r in group) else float("nan")
+        lines.append(f"| {course} | {mean('error_wall_shots'):.3f} | {mean('error_other_shots'):.3f} | "
+                     f"{mean('effective_rank'):.1f} |")
+    lines += ["", "## Share of random shots changed by a wall", "", "| Course | Power | Share |", "|---|---:|---:|"]
+    lines += [f"| {r['course']} | {float(r['power']):g} | {float(r['wall_changes_outcome']):.3f} |"
+              for r in read("wall_involvement.csv")]
     return lines
 
 
@@ -184,6 +211,7 @@ def wall_profile() -> None:
     end = start + [0.09, 0.0]
     fig, ax = plt.subplots(figsize=(3.4, 1.55))
     variants = (("Real wall", BLUE, lambda seed: path_for("gate", seed)),
+                ("Dead wall", "#1baf7a", lambda seed: CHECKPOINTS / "ablation" / f"gate_dead_seed{seed}.pt"),
                 ("Ghost wall", ORANGE, lambda seed: CHECKPOINTS / "ablation" / f"gate_ghost_seed{seed}.pt"))
     for label, color, path in variants:
         curves = []
@@ -199,6 +227,8 @@ def wall_profile() -> None:
     ax.set_xlabel("Midpoint of a pair 0.09 apart, along y = 0.6")
     ax.set_ylabel("Latent distance")
     ax.set_ylim(0, None)
+    ax.set_xlim(0.08, 0.92)
+    ax.set_xticks([0.2, 0.4, 0.6, 0.8])
     ax.grid(axis="y", color=GRID, lw=0.4)
     ax.legend(loc="upper left", fontsize=6.5, handlelength=1.4, borderaxespad=0.1)
     fig.tight_layout(pad=0.3)
@@ -217,7 +247,7 @@ def main() -> None:
         writer.writerows(summary)
     lines = ["# Results summary", "", "Three model seeds per course and 20 episodes per seed. Seeds are the"
              " replication unit.", ""] + lines
-    lines += geometry_table(shapes) + ablation_table(ablations) + ghost_table(ghosts)
+    lines += geometry_table(shapes) + ablation_table(ablations) + ghost_table(ghosts) + factorial_table()
     (RESULTS / "summary.md").write_text("\n".join(lines) + "\n")
     distance_maps()
     power_figure(ablations)
